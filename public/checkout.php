@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare(
                     'INSERT INTO orders (user_id, customer_name, contact_number, delivery_address, delivery_instructions,
                                           payment_method, subtotal, tax, total, status, created_at)
-                     VALUES (:user_id, :name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", NOW())'
+                     VALUES (:user_id, :name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", CURRENT_TIMESTAMP)'
                 );
                 $stmt->execute([
                     'user_id' => $_SESSION['user_id'] ?? null,

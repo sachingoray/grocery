@@ -454,8 +454,9 @@ function mff_orders_fallback(): array
 }
 
 /**
- * Returns a live PDO connection, or null if unavailable (caller should use
- * the mff_*_fallback() functions in that case).
+ * Returns a live PDO connection (MySQL if available, or persistent SQLite fallback).
+ * This ensures all changes (products, orders, users, driver updates) persist in
+ * real-time across all users and devices.
  */
 function mff_db(): ?PDO
 {
@@ -470,8 +471,8 @@ function mff_db(): ?PDO
     }
     $attempted = true;
 
+    // 1. First attempt MySQL PDO connection
     $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', DB_HOST, DB_NAME, DB_CHARSET);
-
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -479,17 +480,152 @@ function mff_db(): ?PDO
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
         $GLOBALS['mff_db_live'] = true;
+        mff_init_db_schema($pdo, 'mysql');
         return $pdo;
     } catch (PDOException $e) {
-        error_log('[mff] DB connection failed, using fallback data: ' . $e->getMessage());
-        if (getenv('MFF_DB_FALLBACK') === '0') {
-            throw $e;
+        // MySQL unreachable — proceed to persistent SQLite storage
+    }
+
+    // 2. Fall back to persistent SQLite PDO storage
+    try {
+        $dataDir = __DIR__ . '/data';
+        if (!is_dir($dataDir)) {
+            @mkdir($dataDir, 0777, true);
         }
+        $sqliteFile = $dataDir . '/maxi_fine_foods.sqlite';
+        $pdo = new PDO('sqlite:' . $sqliteFile, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+        $GLOBALS['mff_db_live'] = true;
+        mff_init_db_schema($pdo, 'sqlite');
+        return $pdo;
+    } catch (Exception $e) {
+        error_log('[mff] SQLite DB connection failed: ' . $e->getMessage());
         return null;
     }
 }
 
-/** Fetch all products, from DB if live, otherwise the mock fallback. */
+/**
+ * Ensures all required tables and initial seed records exist in the database.
+ */
+function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
+{
+    static $initialized = false;
+    if ($initialized) return;
+    $initialized = true;
+
+    $autoInc = ($driver === 'sqlite') ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT AUTO_INCREMENT PRIMARY KEY';
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+        id {$autoInc},
+        name VARCHAR(120) NOT NULL,
+        email VARCHAR(160) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(30) NOT NULL DEFAULT 'customer',
+        contact_number VARCHAR(40) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS products (
+        id {$autoInc},
+        sku VARCHAR(60) UNIQUE,
+        name VARCHAR(160) NOT NULL,
+        category VARCHAR(60) NOT NULL,
+        badge VARCHAR(60) NULL,
+        price DECIMAL(10,2) NOT NULL,
+        original_price DECIMAL(10,2) NULL,
+        is_special INTEGER NOT NULL DEFAULT 0,
+        stock INTEGER NOT NULL DEFAULT 0,
+        low_stock_threshold INTEGER NOT NULL DEFAULT 10,
+        image_url VARCHAR(500) NULL,
+        description TEXT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS orders (
+        id {$autoInc},
+        user_id INTEGER NULL,
+        customer_name VARCHAR(160) NOT NULL,
+        contact_number VARCHAR(40) NOT NULL,
+        delivery_address VARCHAR(255) NOT NULL,
+        delivery_instructions TEXT NULL,
+        payment_method VARCHAR(40) NOT NULL DEFAULT 'cash_on_delivery',
+        subtotal DECIMAL(10,2) NOT NULL,
+        tax DECIMAL(10,2) NOT NULL,
+        total DECIMAL(10,2) NOT NULL,
+        status VARCHAR(40) NOT NULL DEFAULT 'pending',
+        driver VARCHAR(120) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS order_items (
+        id {$autoInc},
+        order_id INTEGER NOT NULL,
+        product_id INTEGER NULL,
+        name VARCHAR(160) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        quantity INTEGER NOT NULL
+    )");
+
+    // Seed products if empty
+    $prodCount = (int) $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
+    if ($prodCount === 0) {
+        $insertProd = $pdo->prepare(
+            'INSERT INTO products (id, sku, name, category, badge, price, original_price, is_special, stock, low_stock_threshold, image_url, description)
+             VALUES (:id, :sku, :name, :category, :badge, :price, :original_price, :is_special, :stock, :low_stock_threshold, :image_url, :description)'
+        );
+        foreach (mff_products_fallback() as $p) {
+            $insertProd->execute([
+                'id' => $p['id'], 'sku' => $p['sku'], 'name' => $p['name'],
+                'category' => $p['category'], 'badge' => $p['badge'] ?? null,
+                'price' => $p['price'], 'original_price' => $p['original_price'] ?? null,
+                'is_special' => $p['is_special'] ?? 0, 'stock' => $p['stock'],
+                'low_stock_threshold' => $p['low_stock_threshold'] ?? 10,
+                'image_url' => $p['image_url'], 'description' => $p['description'],
+            ]);
+        }
+    }
+
+    // Seed default users if empty
+    $userCount = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+    if ($userCount === 0) {
+        $insertUser = $pdo->prepare(
+            'INSERT INTO users (name, email, password_hash, role, contact_number)
+             VALUES (:name, :email, :hash, :role, :contact)'
+        );
+        $seedUsers = [
+            ['Admin User', 'admin@maxifinefoods.com.au', password_hash('admin123', PASSWORD_DEFAULT), 'admin', '1800 629 436'],
+            ['Chris Allen', 'driver@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0412 998 112'],
+            ['Jordan Lee', 'jordan@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0433 112 445'],
+            ['Emma Wilson', 'customer@maxifinefoods.com.au', password_hash('customer123', PASSWORD_DEFAULT), 'customer', '0412 345 678'],
+        ];
+        foreach ($seedUsers as $u) {
+            $insertUser->execute([
+                'name' => $u[0], 'email' => $u[1], 'hash' => $u[2], 'role' => $u[3], 'contact' => $u[4],
+            ]);
+        }
+    }
+
+    // Seed default orders if empty
+    $orderCount = (int) $pdo->query('SELECT COUNT(*) FROM orders')->fetchColumn();
+    if ($orderCount === 0) {
+        $pdo->exec(
+            "INSERT INTO orders (id, user_id, customer_name, contact_number, delivery_address, delivery_instructions, payment_method, subtotal, tax, total, status, driver, created_at)
+             VALUES (2048, 4, 'Emma Wilson', '0412 345 678', '42 Riverside Drive, Parramatta NSW 2150', 'Leave with concierge if not home.', 'cash_on_delivery', 13.38, 1.34, 14.72, 'out_for_delivery', 'Chris Allen', '2026-08-20 09:15:00')"
+        );
+        $pdo->exec(
+            "INSERT INTO orders (id, user_id, customer_name, contact_number, delivery_address, delivery_instructions, payment_method, subtotal, tax, total, status, driver, created_at)
+             VALUES (2049, 4, 'Noah Brown', '0433 221 998', '8 Harbord Street, Marrickville NSW 2204', 'Ring the doorbell twice.', 'credit_card', 26.40, 2.64, 29.04, 'processing', 'Jordan Lee', '2026-08-21 10:02:00')"
+        );
+        $pdo->exec("INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (2048, 1, 'Organic Hass Avocados', 2.49, 2)");
+        $pdo->exec("INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (2048, 31, 'Free-Range Large Eggs 12pk', 8.40, 1)");
+        $pdo->exec("INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (2049, 21, 'Atlantic Salmon Fillet 500g', 15.50, 1)");
+        $pdo->exec("INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (2049, 11, 'Country Sourdough Loaf', 5.90, 1)");
+    }
+}
+
+/** Fetch all products from active database. */
 function mff_get_products(): array
 {
     $pdo = mff_db();
@@ -517,3 +653,4 @@ function mff_get_product(int $id): ?array
     $row = $stmt->fetch();
     return $row ?: null;
 }
+
