@@ -140,7 +140,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
   </div>
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
     <a href="<?= BASE_URL ?>/admin/dashboard.php" class="btn-outline">Back to Dashboard</a>
-    <button type="button" onclick="document.getElementById('createUserModal').classList.remove('hidden');" class="btn-tomato">
+    <button type="button" onclick="openCreateUserModal();" class="btn-tomato">
       <i data-lucide="user-plus" class="icon-sm"></i> Add New User
     </button>
   </div>
@@ -274,11 +274,11 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 <!-- ========================================== -->
 <!-- MODAL: ADD NEW USER                       -->
 <!-- ========================================== -->
-<div id="createUserModal" class="hidden" style="position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem;">
-  <div class="card-artisan" style="width:100%;max-width:32rem;max-height:90vh;overflow-y:auto;background:#fff;border-radius:1.5rem;padding:2rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);">
+<div id="createUserModal" class="modal-overlay hidden" style="display:none;" onclick="if(event.target===this) closeCreateUserModal();">
+  <div class="card-artisan" style="width:100%;max-width:32rem;max-height:90vh;overflow-y:auto;background:#fff;border-radius:1.5rem;padding:2rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);position:relative;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--line);padding-bottom:.75rem;">
       <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--ink);margin:0;">Add New User Account</h3>
-      <button type="button" onclick="document.getElementById('createUserModal').classList.add('hidden');" style="font-size:1.4rem;color:#56715f;cursor:pointer;">&times;</button>
+      <button type="button" onclick="closeCreateUserModal();" aria-label="Close modal" style="background:none;border:none;font-size:1.75rem;line-height:1;color:#56715f;cursor:pointer;padding:0.25rem 0.5rem;">&times;</button>
     </div>
 
     <form method="post" action="<?= BASE_URL ?>/admin/manage_users.php" class="form-grid" style="grid-template-columns:1fr;gap:.9rem;">
@@ -323,7 +323,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       </div>
 
       <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.25rem;">
-        <button type="button" onclick="document.getElementById('createUserModal').classList.add('hidden');" class="btn-outline">Cancel</button>
+        <button type="button" onclick="closeCreateUserModal();" class="btn-outline">Cancel</button>
         <button type="submit" class="btn-tomato">Create User</button>
       </div>
     </form>
@@ -333,11 +333,11 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 <!-- ========================================== -->
 <!-- MODAL: EDIT USER & CHANGE PASSWORD        -->
 <!-- ========================================== -->
-<div id="editUserModal" class="hidden" style="position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem;">
-  <div class="card-artisan" style="width:100%;max-width:32rem;max-height:90vh;overflow-y:auto;background:#fff;border-radius:1.5rem;padding:2rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);">
+<div id="editUserModal" class="modal-overlay hidden" style="display:none;" onclick="if(event.target===this) closeEditUserModal();">
+  <div class="card-artisan" style="width:100%;max-width:32rem;max-height:90vh;overflow-y:auto;background:#fff;border-radius:1.5rem;padding:2rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);position:relative;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--line);padding-bottom:.75rem;">
       <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--ink);margin:0;">Edit User &amp; Change Password</h3>
-      <button type="button" onclick="document.getElementById('editUserModal').classList.add('hidden');" style="font-size:1.4rem;color:#56715f;cursor:pointer;">&times;</button>
+      <button type="button" onclick="closeEditUserModal();" aria-label="Close modal" style="background:none;border:none;font-size:1.75rem;line-height:1;color:#56715f;cursor:pointer;padding:0.25rem 0.5rem;">&times;</button>
     </div>
 
     <form method="post" action="<?= BASE_URL ?>/admin/manage_users.php" class="form-grid" style="grid-template-columns:1fr;gap:.9rem;">
@@ -386,7 +386,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       </div>
 
       <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.25rem;">
-        <button type="button" onclick="document.getElementById('editUserModal').classList.add('hidden');" class="btn-outline">Cancel</button>
+        <button type="button" onclick="closeEditUserModal();" class="btn-outline">Cancel</button>
         <button type="submit" class="btn-tomato">Save Changes</button>
       </div>
     </form>
@@ -402,6 +402,22 @@ function filterUserTable(query) {
   });
 }
 
+function openCreateUserModal() {
+  const modal = document.getElementById('createUserModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeCreateUserModal() {
+  const modal = document.getElementById('createUserModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+  }
+}
+
 function openEditUserModal(id, name, email, contact, role) {
   document.getElementById('edit_user_id').value = id;
   document.getElementById('edit_name').value = name;
@@ -409,7 +425,19 @@ function openEditUserModal(id, name, email, contact, role) {
   document.getElementById('edit_contact').value = contact;
   document.getElementById('edit_role').value = role;
   document.getElementById('edit_password').value = '';
-  document.getElementById('editUserModal').classList.remove('hidden');
+  const modal = document.getElementById('editUserModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeEditUserModal() {
+  const modal = document.getElementById('editUserModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+  }
 }
 
 function generateRandomPass() {
@@ -421,12 +449,19 @@ function generateRandomPass() {
   document.getElementById('edit_password').value = pass;
 }
 
+// Close modals on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeCreateUserModal();
+    closeEditUserModal();
+  }
+});
+
 // Auto open modal if requested via URL parameter (?action=create or ?edit=ID)
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get('action') === 'create') {
-    const modal = document.getElementById('createUserModal');
-    if (modal) modal.classList.remove('hidden');
+    openCreateUserModal();
   } else if (params.get('edit')) {
     const editId = params.get('edit');
     const btn = document.getElementById('edit-btn-' + editId);

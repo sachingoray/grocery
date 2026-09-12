@@ -797,3 +797,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   font-size: 0.875rem;
   color: #56715f;
 }
+
+/* --------------------------------------------------------- Modal & Utilities */
+.hidden {
+  display: none !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(14, 26, 19, 0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
