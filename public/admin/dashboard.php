@@ -10,7 +10,14 @@ if ($pdo !== null) {
     $totalOrders = (int) $pdo->query('SELECT COUNT(*) FROM orders')->fetchColumn();
     $totalRevenue = (float) $pdo->query('SELECT COALESCE(SUM(total), 0) FROM orders WHERE status != "cancelled"')->fetchColumn();
     $pendingOrders = (int) $pdo->query('SELECT COUNT(*) FROM orders WHERE status = "pending"')->fetchColumn();
+    $processingOrders = (int) $pdo->query('SELECT COUNT(*) FROM orders WHERE status = "processing"')->fetchColumn();
+    $outForDeliveryOrders = (int) $pdo->query('SELECT COUNT(*) FROM orders WHERE status = "out_for_delivery"')->fetchColumn();
+    $deliveredOrders = (int) $pdo->query('SELECT COUNT(*) FROM orders WHERE status = "delivered"')->fetchColumn();
     $lowStock = (int) $pdo->query('SELECT COUNT(*) FROM products WHERE stock <= low_stock_threshold')->fetchColumn();
+    $outOfStock = (int) $pdo->query('SELECT COUNT(*) FROM products WHERE stock <= 0')->fetchColumn();
+    $totalProducts = (int) $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
+    $totalSpecials = (int) $pdo->query('SELECT COUNT(*) FROM products WHERE is_special = 1')->fetchColumn();
+    $lowStockProducts = $pdo->query('SELECT * FROM products WHERE stock <= low_stock_threshold ORDER BY stock ASC LIMIT 8')->fetchAll();
 
     $drivers = $pdo->query("
         SELECT u.id, u.name, u.email, u.contact_number, u.created_at,
@@ -35,8 +42,15 @@ if ($pdo !== null) {
     $totalOrders = 128;
     $totalRevenue = 8742.00;
     $pendingOrders = 12;
+    $processingOrders = 8;
+    $outForDeliveryOrders = 5;
+    $deliveredOrders = 103;
     $products = mff_products_fallback();
+    $totalProducts = count($products);
+    $totalSpecials = count(array_filter($products, fn($p) => $p['is_special'] == 1));
+    $outOfStock = count(array_filter($products, fn($p) => $p['stock'] <= 0));
     $lowStock = count(array_filter($products, fn($p) => $p['stock'] <= $p['low_stock_threshold']));
+    $lowStockProducts = array_slice(array_filter($products, fn($p) => $p['stock'] <= $p['low_stock_threshold']), 0, 8);
     $totalDrivers = 2;
     $totalUsers = 8;
     $drivers = [
@@ -71,51 +85,171 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="btn-outline">Manage orders</a>
     <?php endif; ?>
     <?php if (in_array($userRole, ['admin', 'logistics_manager'], true)): ?>
-      <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline">Manage drivers</a>
+      <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline">🚚 Manage drivers</a>
+    <?php endif; ?>
+    <?php if (in_array($userRole, ['admin', 'inventory_manager'], true)): ?>
+      <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato">📦 Manage products</a>
     <?php endif; ?>
     <?php if ($userRole === 'admin'): ?>
       <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline">👥 Manage users</a>
     <?php endif; ?>
-    <?php if (in_array($userRole, ['admin', 'inventory_manager'], true)): ?>
-      <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato">Add / Edit products</a>
-    <?php endif; ?>
   </div>
 </div>
 
-<div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));">
-  <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
-    <p class="stat-card__label">Total orders ↗</p>
-    <p class="stat-card__value"><?= number_format($totalOrders) ?></p>
-  </a>
-  <div class="stat-card">
-    <p class="stat-card__label">Revenue</p>
-    <p class="stat-card__value"><?= mff_money($totalRevenue) ?></p>
-  </div>
-  <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
-    <p class="stat-card__label">Pending orders ↗</p>
-    <p class="stat-card__value"><?= number_format($pendingOrders) ?></p>
-  </a>
-  <a href="<?= BASE_URL ?>/admin/manage_users.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;border:1.5px solid var(--leaf-tint, #cfe1d5);">
-    <p class="stat-card__label" style="color:var(--leaf);font-weight:700;">👥 Registered Users ↗</p>
-    <p class="stat-card__value"><?= number_format($totalUsers) ?></p>
-  </a>
-  <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
-    <p class="stat-card__label">Delivery drivers ↗</p>
-    <p class="stat-card__value"><?= number_format($totalDrivers) ?></p>
-  </a>
-  <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
-    <p class="stat-card__label">Low stock items ↗</p>
-    <p class="stat-card__value"><?= number_format($lowStock) ?></p>
-  </a>
+<!-- Tailored Stats Grid by Role -->
+<div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));margin-top:1.5rem;">
+  <?php if ($userRole === 'admin'): ?>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Total orders ↗</p>
+      <p class="stat-card__value"><?= number_format($totalOrders) ?></p>
+    </a>
+    <div class="stat-card">
+      <p class="stat-card__label">Store Revenue</p>
+      <p class="stat-card__value"><?= mff_money($totalRevenue) ?></p>
+    </div>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Pending orders ↗</p>
+      <p class="stat-card__value"><?= number_format($pendingOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_users.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;border:1.5px solid var(--leaf-tint, #cfe1d5);">
+      <p class="stat-card__label" style="color:var(--leaf);font-weight:700;">👥 Registered Users ↗</p>
+      <p class="stat-card__value"><?= number_format($totalUsers) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Delivery drivers ↗</p>
+      <p class="stat-card__value"><?= number_format($totalDrivers) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Low stock items ↗</p>
+      <p class="stat-card__value"><?= number_format($lowStock) ?></p>
+    </a>
+
+  <?php elseif ($userRole === 'logistics_manager'): ?>
+    <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Active Fleet Drivers ↗</p>
+      <p class="stat-card__value"><?= number_format($totalDrivers) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Out For Delivery ↗</p>
+      <p class="stat-card__value"><?= number_format($outForDeliveryOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">In Processing / Dispatch ↗</p>
+      <p class="stat-card__value"><?= number_format($processingOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Total Orders Handled ↗</p>
+      <p class="stat-card__value"><?= number_format($totalOrders) ?></p>
+    </a>
+
+  <?php elseif ($userRole === 'inventory_manager'): ?>
+    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Total Products ↗</p>
+      <p class="stat-card__value"><?= number_format($totalProducts) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;border:1.5px solid #fecdd3;">
+      <p class="stat-card__label" style="color:var(--tomato);font-weight:700;">⚠️ Low Stock Items ↗</p>
+      <p class="stat-card__value"><?= number_format($lowStock) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Out of Stock ↗</p>
+      <p class="stat-card__value"><?= number_format($outOfStock) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Promotions &amp; Specials ↗</p>
+      <p class="stat-card__value"><?= number_format($totalSpecials) ?></p>
+    </a>
+
+  <?php elseif ($userRole === 'support_staff'): ?>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Total Customer Orders ↗</p>
+      <p class="stat-card__value"><?= number_format($totalOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;border:1.5px solid #fef08a;">
+      <p class="stat-card__label" style="color:#854d0e;font-weight:700;">Pending Confirmation ↗</p>
+      <p class="stat-card__value"><?= number_format($pendingOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">In Processing ↗</p>
+      <p class="stat-card__value"><?= number_format($processingOrders) ?></p>
+    </a>
+    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+      <p class="stat-card__label">Delivered Orders ↗</p>
+      <p class="stat-card__value"><?= number_format($deliveredOrders) ?></p>
+    </a>
+  <?php endif; ?>
 </div>
 
-<!-- Delivery Fleet Overview Section -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;">
+<?php if (in_array($userRole, ['admin', 'inventory_manager'], true)): ?>
+<!-- Inventory & Low Stock Overview Section (Product Manager & Admin) -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
   <div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">🚚 Delivery drivers fleet</h2>
-    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">Active driver team and delivery workloads</p>
+    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">📦 Inventory &amp; Stock Alerts</h2>
+    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">Products requiring replenishment and stock monitoring</p>
   </div>
-  <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">+ Add / Manage drivers</a>
+  <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato" style="font-size:0.825rem;padding:0.35rem 0.85rem;">+ Add New Product</a>
+</div>
+
+<div class="data-table-wrap" style="margin-top:0.5rem;">
+  <table class="data-table">
+    <caption class="sr-only">Low stock products overview</caption>
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Current Stock</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php if (empty($lowStockProducts)): ?>
+        <tr><td colspan="6" style="text-align:center;color:#56715f;padding:2rem;">All products have healthy stock levels. <a href="<?= BASE_URL ?>/admin/manage_products.php" style="color:var(--leaf);font-weight:700;">View catalog</a></td></tr>
+      <?php else: ?>
+        <?php foreach ($lowStockProducts as $p): ?>
+          <tr>
+            <td style="font-weight:700;">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <?php if (!empty($p['image_url'])): ?>
+                  <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px;">
+                <?php endif; ?>
+                <span><?= htmlspecialchars($p['name']) ?></span>
+              </div>
+            </td>
+            <td><?= htmlspecialchars(ucfirst($p['category'] ?? 'General')) ?></td>
+            <td style="font-weight:600;"><?= mff_money($p['price']) ?></td>
+            <td>
+              <strong style="color:<?= (int)$p['stock'] <= 0 ? 'var(--tomato)' : '#d97706' ?>;">
+                <?= (int)$p['stock'] ?> units
+              </strong>
+            </td>
+            <td>
+              <?php if ((int)$p['stock'] <= 0): ?>
+                <span class="status" style="background:#fee2e2;color:#991b1b;font-weight:700;">Out of Stock</span>
+              <?php else: ?>
+                <span class="status" style="background:#fef3c7;color:#92400e;font-weight:700;">Low Stock</span>
+              <?php endif; ?>
+            </td>
+            <td>
+              <a href="<?= BASE_URL ?>/admin/manage_products.php?edit=<?= (int)$p['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.25rem 0.65rem;">Restock / Edit</a>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </tbody>
+  </table>
+</div>
+<?php endif; ?>
+
+<?php if (in_array($userRole, ['admin', 'logistics_manager'], true)): ?>
+<!-- Delivery Fleet Overview Section (Logistics Manager & Admin) -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+  <div>
+    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">🚚 Delivery Drivers Fleet</h2>
+    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">Active delivery driver team, phone contacts, and workloads</p>
+  </div>
+  <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">+ Add / Manage Drivers</a>
 </div>
 
 <div class="data-table-wrap" style="margin-top:0.5rem;">
@@ -123,10 +257,10 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
     <caption class="sr-only">Delivery drivers overview</caption>
     <thead>
       <tr>
-        <th>Driver name</th>
+        <th>Driver Name</th>
         <th>Email</th>
-        <th>Contact number</th>
-        <th>Active deliveries</th>
+        <th>Contact Number</th>
+        <th>Active Deliveries</th>
         <th>Completed</th>
         <th>Action</th>
       </tr>
@@ -169,12 +303,14 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
     </tbody>
   </table>
 </div>
+<?php endif; ?>
 
-<!-- Recent Store Orders Section -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;">
+<?php if (in_array($userRole, ['admin', 'logistics_manager', 'support_staff'], true)): ?>
+<!-- Recent Store Orders Section (Admin, Logistics, Support) -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
   <div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">📦 Recent store orders</h2>
-    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">Latest customer purchases and status</p>
+    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">📦 Recent Customer Orders</h2>
+    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">Latest customer purchases, fulfillment status, and driver dispatch</p>
   </div>
   <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">View all orders</a>
 </div>
@@ -182,7 +318,16 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 <div class="data-table-wrap" style="margin-top:0.5rem;">
   <table class="data-table">
     <caption class="sr-only">Recent store orders</caption>
-    <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Driver</th><th>Action</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Customer</th>
+        <th>Status</th>
+        <th>Assigned Driver</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
     <tbody>
       <?php foreach ($orders as $order): ?>
         <tr>
@@ -196,18 +341,21 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
               <span style="color:#c84634;font-size:0.825rem;font-weight:600;">Unassigned</span>
             <?php endif; ?>
           </td>
-          <td><a href="<?= BASE_URL ?>/admin/manage_orders.php?id=<?= (int) $order['id'] ?>" class="btn-outline">Manage</a></td>
+          <td style="font-weight:600;"><?= isset($order['total']) ? mff_money($order['total']) : '—' ?></td>
+          <td><a href="<?= BASE_URL ?>/admin/manage_orders.php?id=<?= (int) $order['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.25rem 0.65rem;">Manage</a></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
   </table>
 </div>
+<?php endif; ?>
 
-<!-- Recently Registered Users Section -->
+<?php if ($userRole === 'admin'): ?>
+<!-- Recently Registered Users Section (Strictly Root Admin Exclusive) -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.75rem;">
   <div>
     <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">👥 Recently Registered Users</h2>
-    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">New customer and staff registrations in real time</p>
+    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">New customer and staff registrations in real time (Admin exclusive)</p>
   </div>
   <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
     <a href="<?= BASE_URL ?>/admin/manage_users.php?action=create" class="btn-tomato" style="font-size:0.825rem;padding:0.35rem 0.85rem;">+ Add New User</a>
@@ -291,13 +439,9 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
               </div>
             </td>
             <td>
-              <?php if ($userRole === 'admin'): ?>
-                <a href="<?= BASE_URL ?>/admin/manage_users.php?edit=<?= (int)$u['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
-                  <i data-lucide="shield" class="icon-xs"></i> Manage User
-                </a>
-              <?php else: ?>
-                <span style="font-size:0.8rem;color:#8ba593;">View Only</span>
-              <?php endif; ?>
+              <a href="<?= BASE_URL ?>/admin/manage_users.php?edit=<?= (int)$u['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
+                <i data-lucide="shield" class="icon-xs"></i> Manage User
+              </a>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -305,5 +449,6 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
     </tbody>
   </table>
 </div>
+<?php endif; ?>
 
 <?php require file_exists(__DIR__ . '/../../includes/footer.php') ? __DIR__ . '/../../includes/footer.php' : __DIR__ . '/../includes/footer.php'; ?>
