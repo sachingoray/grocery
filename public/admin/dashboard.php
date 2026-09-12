@@ -19,6 +19,7 @@ if ($pdo !== null) {
         ORDER BY u.name ASC
     ")->fetchAll();
     $totalDrivers = count($drivers);
+    $totalUsers = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
 } else {
     $orders = mff_orders_fallback();
     $totalOrders = 128;
@@ -27,6 +28,7 @@ if ($pdo !== null) {
     $products = mff_products_fallback();
     $lowStock = count(array_filter($products, fn($p) => $p['stock'] <= $p['low_stock_threshold']));
     $totalDrivers = 2;
+    $totalUsers = 8;
     $drivers = [
         ['id' => 2, 'name' => 'Chris Allen', 'email' => 'driver@maxifinefoods.com.au', 'contact_number' => '0400 000 002', 'active_deliveries' => 1, 'completed_deliveries' => 12],
         ['id' => 3, 'name' => 'Jordan Lee', 'email' => 'jordan@maxifinefoods.com.au', 'contact_number' => '0400 000 003', 'active_deliveries' => 1, 'completed_deliveries' => 8],
@@ -51,14 +53,16 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
     <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="btn-outline">Manage orders</a>
     <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline">Manage drivers</a>
+    <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline">👥 Manage users</a>
     <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato">Add new product</a>
   </div>
 </div>
 
-<div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">
+<div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));">
   <div class="stat-card"><p class="stat-card__label">Total orders</p><p class="stat-card__value"><?= number_format($totalOrders) ?></p></div>
   <div class="stat-card"><p class="stat-card__label">Revenue</p><p class="stat-card__value"><?= mff_money($totalRevenue) ?></p></div>
   <div class="stat-card"><p class="stat-card__label">Pending orders</p><p class="stat-card__value"><?= number_format($pendingOrders) ?></p></div>
+  <div class="stat-card"><p class="stat-card__label">Registered Users</p><p class="stat-card__value"><?= number_format($totalUsers) ?></p></div>
   <div class="stat-card"><p class="stat-card__label">Delivery drivers</p><p class="stat-card__value"><?= number_format($totalDrivers) ?></p></div>
   <div class="stat-card"><p class="stat-card__label">Low stock items</p><p class="stat-card__value"><?= number_format($lowStock) ?></p></div>
 </div>

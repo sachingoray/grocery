@@ -64,6 +64,7 @@ $cartCount = cart_count();
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Orders</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_products' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_products.php">Products</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_drivers' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_drivers.php">Drivers</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_users' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_users.php">Users</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span style="font-size:.825rem;color:#065f46;background:#d1fae5;padding:.35rem .75rem;border-radius:999px;font-weight:600;">
             🛡️ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?> (Admin)
