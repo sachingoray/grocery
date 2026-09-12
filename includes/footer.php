@@ -111,8 +111,9 @@
           <li><a href="<?= BASE_URL ?>/cart.php"><i data-lucide="shopping-bag" class="icon-xs"></i> Shopping Basket</a></li>
           <li><a href="<?= BASE_URL ?>/login.php"><i data-lucide="user" class="icon-xs"></i> My Account Login</a></li>
           <li><a href="<?= BASE_URL ?>/register.php"><i data-lucide="user-plus" class="icon-xs"></i> Create Account</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php#catalogue"><i data-lucide="help-circle" class="icon-xs"></i> Help &amp; FAQs</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php#catalogue"><i data-lucide="refresh-cw" class="icon-xs"></i> Return &amp; Refund Policy</a></li>
+          <li><a href="<?= BASE_URL ?>/faq.php"><i data-lucide="help-circle" class="icon-xs"></i> Help &amp; FAQs</a></li>
+          <li><a href="<?= BASE_URL ?>/refunds.php"><i data-lucide="refresh-cw" class="icon-xs"></i> Return &amp; Refund Policy</a></li>
+          <li><a href="<?= BASE_URL ?>/delivery_terms.php"><i data-lucide="truck" class="icon-xs"></i> Delivery Zones &amp; Rates</a></li>
         </ul>
       </div>
 
@@ -180,13 +181,13 @@
         <div class="sub-footer-legal">
           <p class="sub-footer-copy">&copy; <?= date('Y') ?> Maxi Fine Foods Pty Ltd. ABN 84 192 847 291. All rights reserved.</p>
           <div class="sub-footer-links">
-            <a href="#">Privacy Policy</a>
+            <a href="<?= BASE_URL ?>/privacy.php">Privacy Policy</a>
             <span class="divider-dot">&bull;</span>
-            <a href="#">Terms of Service</a>
+            <a href="<?= BASE_URL ?>/terms.php">Terms of Service</a>
             <span class="divider-dot">&bull;</span>
-            <a href="#">Security &amp; Encryption</a>
+            <a href="<?= BASE_URL ?>/security.php">Security &amp; Encryption</a>
             <span class="divider-dot">&bull;</span>
-            <a href="#">Delivery Terms</a>
+            <a href="<?= BASE_URL ?>/delivery_terms.php">Delivery Terms</a>
           </div>
         </div>
         <div class="sub-footer-payments">
