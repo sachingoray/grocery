@@ -13,6 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($name === '') $errors[] = 'Name is required.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
+    if ($contactNumber !== '' && preg_match('/[a-zA-Z]/', $contactNumber)) {
+        $errors[] = 'Contact number must contain numbers only (no alphabet letters).';
+    }
     if (strlen($password) < 8) $errors[] = 'Password must be at least 8 characters.';
     if ($password !== $confirmPassword) $errors[] = 'Passwords do not match.';
     if (!in_array($role, ['customer', 'admin', 'delivery'], true)) $errors[] = 'Choose a valid role.';
@@ -75,7 +78,16 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     </div>
     <div class="form-field">
       <label for="contact_number">Contact number</label>
-      <input id="contact_number" name="contact_number" type="tel" value="<?= htmlspecialchars($_POST['contact_number'] ?? '') ?>" placeholder="e.g. 0412 345 678">
+      <input 
+        id="contact_number" 
+        name="contact_number" 
+        type="tel" 
+        inputmode="numeric" 
+        pattern="[0-9\s\+\-\(\)]*"
+        placeholder="e.g. 0412 345 678"
+        oninput="this.value = this.value.replace(/[^0-9\+\s\-()]/g, '')"
+        onkeypress="return /[0-9\+\s\-\(\)]/.test(event.key)"
+        value="<?= htmlspecialchars($_POST['contact_number'] ?? '') ?>">
     </div>
     <div class="form-field">
       <label for="password">Password (min. 8 characters)</label>

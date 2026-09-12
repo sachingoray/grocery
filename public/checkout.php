@@ -18,7 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $paymentMethod = $_POST['payment_method'] ?? 'cash_on_delivery';
 
     if ($fullName === '') $errors[] = 'Full name is required.';
-    if ($contactNumber === '') $errors[] = 'Contact number is required.';
+    if ($contactNumber === '') {
+        $errors[] = 'Contact number is required.';
+    } elseif (preg_match('/[a-zA-Z]/', $contactNumber)) {
+        $errors[] = 'Contact number must contain numbers only (no alphabetic characters).';
+    } elseif (!preg_match('/^[0-9\s\+\-\(\)]{8,20}$/', $contactNumber)) {
+        $errors[] = 'Please enter a valid contact phone number (at least 8 digits).';
+    }
     if ($address === '') $errors[] = 'Delivery address is required.';
     if (!in_array($paymentMethod, ['cash_on_delivery', 'credit_card', 'paypal'], true)) {
         $errors[] = 'Choose a valid payment method.';
@@ -128,7 +134,18 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
       </div>
       <div class="form-field">
         <label for="contact-number">Contact number</label>
-        <input id="contact-number" name="contact_number" required type="tel" value="<?= htmlspecialchars($_POST['contact_number'] ?? '') ?>">
+        <input 
+          id="contact-number" 
+          name="contact_number" 
+          required 
+          type="tel" 
+          inputmode="numeric"
+          pattern="[0-9\s\+\-\(\)]{8,20}"
+          placeholder="e.g. 0412 345 678"
+          oninput="this.value = this.value.replace(/[^0-9\+\s\-()]/g, '')"
+          onkeypress="return /[0-9\+\s\-\(\)]/.test(event.key)"
+          value="<?= htmlspecialchars($_POST['contact_number'] ?? $_SESSION['user_contact'] ?? '') ?>">
+        <p style="font-size:0.75rem;color:#56715f;margin-top:0.25rem;">Only numbers are accepted (letters will not be entered).</p>
       </div>
       <div class="form-field form-field--full">
         <label for="delivery-address">Delivery address</label>

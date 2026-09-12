@@ -294,7 +294,15 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 
       <div class="form-field">
         <label for="create_contact">Contact Phone Number</label>
-        <input id="create_contact" name="contact_number" type="tel" placeholder="e.g. 0412 345 678">
+        <input 
+          id="create_contact" 
+          name="contact_number" 
+          type="tel" 
+          inputmode="numeric" 
+          pattern="[0-9\s\+\-\(\)]*" 
+          placeholder="e.g. 0412 345 678"
+          oninput="this.value = this.value.replace(/[^0-9\+\s\-()]/g, '')"
+          onkeypress="return /[0-9\+\s\-\(\)]/.test(event.key)">
       </div>
 
       <div class="form-field">
@@ -346,7 +354,15 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 
       <div class="form-field">
         <label for="edit_contact">Contact Phone Number</label>
-        <input id="edit_contact" name="contact_number" type="tel">
+        <input 
+          id="edit_contact" 
+          name="contact_number" 
+          type="tel" 
+          inputmode="numeric" 
+          pattern="[0-9\s\+\-\(\)]*" 
+          placeholder="e.g. 0412 345 678"
+          oninput="this.value = this.value.replace(/[^0-9\+\s\-()]/g, '')"
+          onkeypress="return /[0-9\+\s\-\(\)]/.test(event.key)">
       </div>
 
       <div class="form-field">
