@@ -184,12 +184,29 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <?php if (empty($users)): ?>
         <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#56715f;">No users found in database.</td></tr>
       <?php else: ?>
-        <?php foreach ($users as $u): ?>
-          <tr class="user-row" data-search="<?= strtolower(htmlspecialchars($u['name'] . ' ' . $u['email'] . ' ' . $u['role'] . ' ' . ($u['contact_number'] ?? ''))) ?>">
+        <?php foreach ($users as $u): 
+          $regTime = strtotime($u['created_at'] ?? 'now');
+          $diff = time() - $regTime;
+          $isRecent = ($diff < 86400 * 3);
+          $searchData = strtolower($u['name'] . ' ' . $u['email'] . ' ' . $u['role'] . ' ' . ($u['contact_number'] ?? '') . ($isRecent ? ' new recent' : ''));
+        ?>
+          <tr class="user-row" data-search="<?= htmlspecialchars($searchData) ?>">
             <td style="font-weight:700;color:#56715f;">#<?= (int) $u['id'] ?></td>
             <td>
-              <div style="font-weight:700;color:var(--ink);font-size:.95rem;"><?= htmlspecialchars($u['name']) ?></div>
-              <div style="font-size:.825rem;color:#56715f;"><?= htmlspecialchars($u['email']) ?></div>
+              <div style="display:flex;align-items:center;gap:0.65rem;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#eef4f0;color:var(--leaf);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;border:1px solid var(--line);flex-shrink:0;">
+                  <?= strtoupper(substr($u['name'], 0, 1)) ?>
+                </div>
+                <div>
+                  <div style="font-weight:700;color:var(--ink);font-size:.95rem;display:flex;align-items:center;gap:0.35rem;">
+                    <?= htmlspecialchars($u['name']) ?>
+                    <?php if ($isRecent): ?>
+                      <span style="background:var(--gold);color:#4a3200;font-size:0.65rem;font-weight:800;padding:0.12rem 0.45rem;border-radius:999px;text-transform:uppercase;letter-spacing:0.04em;">✨ New</span>
+                    <?php endif; ?>
+                  </div>
+                  <div style="font-size:.825rem;color:#56715f;"><?= htmlspecialchars($u['email']) ?></div>
+                </div>
+              </div>
             </td>
             <td>
               <?php if ($u['role'] === 'admin'): ?>
@@ -216,7 +233,17 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
               <?php endif; ?>
             </td>
             <td><strong><?= (int) $u['order_count'] ?></strong> orders</td>
-            <td style="font-size:.825rem;color:#56715f;"><?= date('d M Y, h:ia', strtotime($u['created_at'])) ?></td>
+            <td style="font-size:.825rem;color:#56715f;">
+              <div style="font-weight:600;color:var(--ink);"><?= date('d M Y, h:ia', $regTime) ?></div>
+              <div style="font-size:0.75rem;color:#8ba593;">
+                <?php
+                  if ($diff < 60) echo 'Just now';
+                  elseif ($diff < 3600) echo floor($diff / 60) . ' mins ago';
+                  elseif ($diff < 86400) echo floor($diff / 3600) . ' hours ago';
+                  else echo floor($diff / 86400) . ' days ago';
+                ?>
+              </div>
+            </td>
             <td>
               <div style="display:flex;gap:.4rem;align-items:center;">
                 <button type="button"

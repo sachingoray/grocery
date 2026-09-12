@@ -20,6 +20,14 @@ if ($pdo !== null) {
     ")->fetchAll();
     $totalDrivers = count($drivers);
     $totalUsers = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+
+    $recentUsers = $pdo->query('
+        SELECT u.id, u.name, u.email, u.role, u.contact_number, u.created_at,
+               (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id OR o.customer_name = u.name) AS order_count
+        FROM users u
+        ORDER BY u.created_at DESC
+        LIMIT 6
+    ')->fetchAll();
 } else {
     $orders = mff_orders_fallback();
     $totalOrders = 128;
@@ -32,6 +40,12 @@ if ($pdo !== null) {
     $drivers = [
         ['id' => 2, 'name' => 'Chris Allen', 'email' => 'driver@maxifinefoods.com.au', 'contact_number' => '0400 000 002', 'active_deliveries' => 1, 'completed_deliveries' => 12],
         ['id' => 3, 'name' => 'Jordan Lee', 'email' => 'jordan@maxifinefoods.com.au', 'contact_number' => '0400 000 003', 'active_deliveries' => 1, 'completed_deliveries' => 8],
+    ];
+    $recentUsers = [
+        ['id' => 4, 'name' => 'Sarah Jenkins', 'email' => 'customer@maxifinefoods.com.au', 'role' => 'customer', 'contact_number' => '0412 345 678', 'created_at' => date('Y-m-d H:i:s'), 'order_count' => 3],
+        ['id' => 3, 'name' => 'Jordan Lee', 'email' => 'jordan@maxifinefoods.com.au', 'role' => 'delivery', 'contact_number' => '0400 000 003', 'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')), 'order_count' => 8],
+        ['id' => 2, 'name' => 'Chris Allen', 'email' => 'driver@maxifinefoods.com.au', 'role' => 'delivery', 'contact_number' => '0400 000 002', 'created_at' => date('Y-m-d H:i:s', strtotime('-3 days')), 'order_count' => 12],
+        ['id' => 1, 'name' => 'System Administrator', 'email' => 'admin@maxifinefoods.com.au', 'role' => 'admin', 'contact_number' => '0400 000 001', 'created_at' => date('Y-m-d H:i:s', strtotime('-7 days')), 'order_count' => 0],
     ];
 }
 
@@ -157,6 +171,96 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
           <td><a href="<?= BASE_URL ?>/admin/manage_orders.php?id=<?= (int) $order['id'] ?>" class="btn-outline">Manage</a></td>
         </tr>
       <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+
+<!-- Recently Registered Users Section -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;">
+  <div>
+    <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">👥 Recently Registered Users</h2>
+    <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">New customer and staff registrations in real time</p>
+  </div>
+  <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">View All Users (<?= number_format($totalUsers) ?>)</a>
+</div>
+
+<div class="data-table-wrap" style="margin-top:0.5rem;">
+  <table class="data-table">
+    <caption class="sr-only">Recently registered users</caption>
+    <thead>
+      <tr>
+        <th>User Details</th>
+        <th>Account Role</th>
+        <th>Contact Number</th>
+        <th>Orders Placed</th>
+        <th>Registration Date &amp; Time</th>
+        <th>Admin Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php if (empty($recentUsers)): ?>
+        <tr><td colspan="6" style="text-align:center;color:#56715f;padding:2rem;">No registered users yet.</td></tr>
+      <?php else: ?>
+        <?php foreach ($recentUsers as $u): 
+          $regTime = strtotime($u['created_at'] ?? 'now');
+          $isRecent = (time() - $regTime) < (86400 * 3); // Within 3 days
+        ?>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#eef4f0;color:var(--leaf);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;border:1px solid var(--line);flex-shrink:0;">
+                  <?= strtoupper(substr($u['name'], 0, 1)) ?>
+                </div>
+                <div>
+                  <div style="font-weight:700;color:var(--ink);display:flex;align-items:center;gap:0.4rem;font-size:0.95rem;">
+                    <?= htmlspecialchars($u['name']) ?>
+                    <?php if ($isRecent): ?>
+                      <span style="background:var(--gold);color:#4a3200;font-size:0.65rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:999px;text-transform:uppercase;letter-spacing:0.04em;">✨ New</span>
+                    <?php endif; ?>
+                  </div>
+                  <div style="font-size:0.8rem;color:#56715f;"><?= htmlspecialchars($u['email']) ?></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <?php if ($u['role'] === 'admin'): ?>
+                <span style="background:#d1fae5;color:#065f46;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🛡️ Admin</span>
+              <?php elseif ($u['role'] === 'delivery'): ?>
+                <span style="background:#fef3c7;color:#92400e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🚚 Delivery Driver</span>
+              <?php else: ?>
+                <span style="background:#e0f2fe;color:#0369a1;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🛍️ Customer</span>
+              <?php endif; ?>
+            </td>
+            <td>
+              <?php if (!empty($u['contact_number'])): ?>
+                <a href="tel:<?= htmlspecialchars(preg_replace('/\s+/', '', $u['contact_number'])) ?>" style="font-weight:600;color:var(--leaf);text-decoration:underline;">
+                  <?= htmlspecialchars($u['contact_number']) ?>
+                </a>
+              <?php else: ?>
+                <span style="color:#8ba593;">—</span>
+              <?php endif; ?>
+            </td>
+            <td><strong><?= (int) ($u['order_count'] ?? 0) ?></strong> orders</td>
+            <td style="font-size:0.825rem;color:#56715f;">
+              <div style="font-weight:600;color:var(--ink);"><?= date('d M Y, h:ia', $regTime) ?></div>
+              <div style="font-size:0.75rem;color:#8ba593;">
+                <?php
+                  $diff = time() - $regTime;
+                  if ($diff < 60) echo 'Just now';
+                  elseif ($diff < 3600) echo floor($diff / 60) . ' mins ago';
+                  elseif ($diff < 86400) echo floor($diff / 3600) . ' hours ago';
+                  else echo floor($diff / 86400) . ' days ago';
+                ?>
+              </div>
+            </td>
+            <td>
+              <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
+                <i data-lucide="shield" class="icon-xs"></i> Manage User
+              </a>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </tbody>
   </table>
 </div>
