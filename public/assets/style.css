@@ -11,6 +11,10 @@
 
 * { box-sizing: border-box; }
 
+.is-hidden {
+  display: none !important;
+}
+
 body {
   margin: 0;
   color: var(--ink);
@@ -184,6 +188,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background: transparent; color: var(--ink); font-weight: 700; font-size: .82rem; transition: .2s;
 }
 .filter-button:hover, .filter-button--active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.filter-button--specials { border-color: var(--tomato); color: var(--tomato); }
+.filter-button--specials:hover, .filter-button--specials.filter-button--active { background: var(--tomato); color: #fff; border-color: var(--tomato); }
 
 /* ------------------------------------------------------------ products */
 .product-grid { margin-top: 1.75rem; display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
@@ -194,6 +200,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   overflow: hidden; border-radius: 1.4rem; border: 1px solid var(--line); background: #fff;
   transition: transform .25s ease, box-shadow .25s ease;
 }
+.product-card--special { border-color: #f7cdc4; }
 .product-card:hover { transform: translateY(-5px); box-shadow: 0 17px 30px rgba(25,55,39,.12); }
 .product-card.is-hidden { display: none; }
 .product-card__media { position: relative; aspect-ratio: 1.18 / 1; }
@@ -202,11 +209,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   position: absolute; left: 1rem; top: 1rem;
   background: #fff; border-radius: 999px; padding: .25rem .75rem; font-size: .625rem; font-weight: 700;
 }
+.product-card__badge--sale {
+  background: var(--tomato); color: #fff; box-shadow: 0 4px 12px rgba(217,79,38,.35);
+}
 .product-card__body { padding: 1.25rem; }
 .product-card__category { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #56715f; }
 .product-card__row { margin-top: .5rem; display: flex; justify-content: space-between; gap: .5rem; }
 .product-card__name { font-size: 1.1rem; font-weight: 700; }
-.product-card__price { font-weight: 700; }
+.product-card__price { font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.product-card__price--sale { color: var(--tomato); font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
+.product-card__was-price {
+  display: block; font-size: .82rem; color: #56715f; font-weight: 600; margin-top: .1rem;
+}
+.product-card__was-price del {
+  text-decoration: line-through;
+  text-decoration-color: #d94f26;
+  text-decoration-thickness: 2px;
+  color: #8ba593;
+  margin-left: .15rem;
+}
 .product-card__stock { margin-top: .5rem; font-size: .85rem; color: #56715f; }
 
 /* -------------------------------------------------------- status pills */

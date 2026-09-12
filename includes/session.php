@@ -15,8 +15,13 @@ require_once __DIR__ . '/db.php';
  */
 if (!defined('BASE_URL')) {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $publicPos = strpos($scriptName, '/public');
-    define('BASE_URL', $publicPos !== false ? substr($scriptName, 0, $publicPos + strlen('/public')) : '');
+    if (($pos = strpos($scriptName, '/g4')) !== false) {
+        define('BASE_URL', substr($scriptName, 0, $pos + strlen('/g4')));
+    } elseif (($pos = strpos($scriptName, '/public')) !== false) {
+        define('BASE_URL', substr($scriptName, 0, $pos + strlen('/public')));
+    } else {
+        define('BASE_URL', '');
+    }
 }
 
 if (session_status() === PHP_SESSION_NONE) {

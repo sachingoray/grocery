@@ -2,14 +2,22 @@
 require_once __DIR__ . '/../../includes/session.php';
 mff_require_role(['admin']);
 
-$drivers = ['Chris Allen', 'Jordan Lee'];
+$pdo = mff_db();
+
+$drivers = [];
+if ($pdo !== null) {
+    $driverStmt = $pdo->query("SELECT name FROM users WHERE role = 'delivery' ORDER BY name ASC");
+    $drivers = $driverStmt->fetchAll(PDO::FETCH_COLUMN);
+}
+if (empty($drivers)) {
+    $drivers = ['Chris Allen', 'Jordan Lee'];
+}
+
 $statuses = ['pending', 'processing', 'out_for_delivery', 'delivered', 'cancelled'];
 $statusLabels = [
     'pending' => 'Pending', 'processing' => 'Processing',
     'out_for_delivery' => 'Out for delivery', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled',
 ];
-
-$pdo = mff_db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save') {
     $orderId = (int) ($_POST['order_id'] ?? 0);
@@ -32,7 +40,7 @@ $orders = $pdo !== null
     : mff_orders_fallback();
 
 $pageTitle = 'Manage Orders';
-$activeNav = 'admin';
+$activeNav = 'admin_orders';
 require __DIR__ . '/../../includes/header.php';
 ?>
 

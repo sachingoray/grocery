@@ -33,11 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->beginTransaction();
 
                 $stmt = $pdo->prepare(
-                    'INSERT INTO orders (customer_name, contact_number, delivery_address, delivery_instructions,
+                    'INSERT INTO orders (user_id, customer_name, contact_number, delivery_address, delivery_instructions,
                                           payment_method, subtotal, tax, total, status, created_at)
-                     VALUES (:name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", NOW())'
+                     VALUES (:user_id, :name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", NOW())'
                 );
                 $stmt->execute([
+                    'user_id' => $_SESSION['user_id'] ?? null,
                     'name' => $fullName, 'contact' => $contactNumber, 'address' => $address,
                     'instructions' => $instructions, 'payment' => $paymentMethod,
                     'subtotal' => $cart['subtotal'], 'tax' => $cart['tax'], 'total' => $cart['total'],
@@ -111,6 +112,10 @@ require __DIR__ . '/../includes/header.php';
       <?php foreach ($errors as $error): ?><li><?= htmlspecialchars($error) ?></li><?php endforeach; ?>
     </ul>
   </div>
+<?php elseif ($currentRole === 'guest'): ?>
+  <div class="flash flash--info" style="margin:1rem 0 0;max-width:none;">
+    <span>Checking out as <strong>Guest</strong>. <a href="<?= BASE_URL ?>/login.php" style="font-weight:700;text-decoration:underline;">Log in</a> or <a href="<?= BASE_URL ?>/register.php" style="font-weight:700;text-decoration:underline;">Create an account</a> to track and save this order to your profile.</span>
+  </div>
 <?php endif; ?>
 
 <form method="post" action="<?= BASE_URL ?>/checkout.php" class="form-grid" style="margin-top:1.5rem;grid-template-columns:1.2fr .8fr;align-items:start;">
@@ -119,7 +124,7 @@ require __DIR__ . '/../includes/header.php';
     <div class="form-grid">
       <div class="form-field">
         <label for="full-name">Full name</label>
-        <input id="full-name" name="full_name" required type="text" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
+        <input id="full-name" name="full_name" required type="text" value="<?= htmlspecialchars($_POST['full_name'] ?? $_SESSION['user_name'] ?? '') ?>">
       </div>
       <div class="form-field">
         <label for="contact-number">Contact number</label>

@@ -16,15 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password_hash'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
             mff_set_role($user['role']);
-            mff_set_flash('success', 'Welcome back, ' . $user['name'] . '.');
-            header('Location: ' . BASE_URL . '/index.php');
+            mff_set_flash('success', 'Welcome back, ' . $user['name'] . ' (' . ucfirst($user['role']) . ').');
+
+            if ($user['role'] === 'admin') {
+                header('Location: ' . BASE_URL . '/admin/dashboard.php');
+            } elseif ($user['role'] === 'delivery') {
+                header('Location: ' . BASE_URL . '/delivery/my_deliveries.php');
+            } else {
+                header('Location: ' . BASE_URL . '/index.php');
+            }
             exit;
         }
         $error = 'Incorrect email or password.';
     } else {
-        // No DB configured yet — accept any credentials in dev/demo mode so
-        // the flow is testable before Anurag's schema lands.
+        // No DB configured yet — accept any credentials in dev/demo mode
         mff_set_role('customer');
         mff_set_flash('info', 'Signed in (demo mode — no database connected yet).');
         header('Location: ' . BASE_URL . '/index.php');

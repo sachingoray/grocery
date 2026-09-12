@@ -39,7 +39,25 @@ require __DIR__ . '/../includes/header.php';
   <div class="card-artisan">
     <p class="product-card__category"><?= htmlspecialchars($product['category']) ?></p>
     <h1 class="section-title" style="margin-top:.4rem;"><?= htmlspecialchars($product['name']) ?></h1>
-    <p style="margin-top:.75rem;font-size:1.25rem;font-weight:700;"><?= mff_money($product['price']) ?></p>
+    
+    <?php 
+      $hasSale = !empty($product['original_price']) && (float)$product['original_price'] > (float)$product['price'];
+      $savings = $hasSale ? ((float)$product['original_price'] - (float)$product['price']) : 0;
+      $pct = $hasSale ? round(($savings / (float)$product['original_price']) * 100) : 0;
+    ?>
+    <div style="display:flex;align-items:baseline;gap:.85rem;margin-top:.75rem;flex-wrap:wrap;">
+      <p style="font-size:2rem;font-weight:800;color:<?= $hasSale ? 'var(--tomato)' : 'inherit' ?>;margin:0;letter-spacing:-.02em;">
+        <?= mff_money($product['price']) ?>
+      </p>
+      <?php if ($hasSale): ?>
+        <span style="font-size:1.1rem;color:#56715f;font-weight:600;">
+          Was <del style="text-decoration:line-through;text-decoration-color:#d94f26;text-decoration-thickness:2px;color:#8ba593;"><?= mff_money($product['original_price']) ?></del>
+        </span>
+        <span class="product-card__badge product-card__badge--sale" style="position:static;display:inline-block;font-size:.75rem;padding:.3rem .75rem;">
+          Save <?= mff_money($savings) ?> (<?= $pct ?>% OFF)
+        </span>
+      <?php endif; ?>
+    </div>
 
     <p style="margin-top:.5rem;">
       <?php if ($isLowStock): ?>

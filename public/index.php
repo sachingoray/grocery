@@ -51,7 +51,7 @@ require __DIR__ . '/../includes/header.php';
   </div>
 
   <div class="filter-row" role="group" aria-label="Product categories">
-    <button class="filter-button filter-button--active" data-category="all" type="button">All goods</button>
+    <button class="filter-button filter-button--active filter-button--specials" data-category="specials" type="button">🔥 Weekly Specials</button>
     <?php foreach ($categories as $category): ?>
       <button class="filter-button" data-category="<?= htmlspecialchars($category) ?>" type="button"><?= htmlspecialchars($category) ?></button>
     <?php endforeach; ?>
@@ -59,24 +59,37 @@ require __DIR__ . '/../includes/header.php';
 
   <p id="no-products" class="hidden" style="padding:3.5rem 0;text-align:center;color:#56715f;">No products match your search.</p>
 
+  <?php if (empty($products)): ?>
+    <div style="padding: 4.5rem 1rem; text-align: center; color: #56715f; background: #fff; border: 1px dashed var(--line); border-radius: 1.5rem; margin-top: 1.75rem;">
+      <i data-lucide="shopping-basket" style="width: 48px; height: 48px; stroke-width: 1.5; margin-bottom: 0.75rem; color: #8ba593;"></i>
+      <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--ink);">Market Catalog is Currently Empty</h3>
+      <p style="margin-top: 0.4rem; font-size: 0.95rem; max-width: 460px; margin-left: auto; margin-right: auto;">All products have been cleared. New grocery stock can be added via the Admin Panel or populated by the system.</p>
+    </div>
+  <?php else: ?>
   <div id="product-grid" class="product-grid">
     <?php foreach ($products as $product): ?>
       <?php
         $isLowStock = $product['stock'] <= ($product['low_stock_threshold'] ?? 10);
-        $searchBlob = strtolower($product['name'] . ' ' . $product['category'] . ' ' . ($product['badge'] ?? ''));
+        $isSpecial = !empty($product['is_special']) || (!empty($product['original_price']) && $product['original_price'] > $product['price']);
+        $searchBlob = strtolower($product['name'] . ' ' . $product['category'] . ' ' . ($product['badge'] ?? '') . ($isSpecial ? ' special sale deal' : ''));
       ?>
-      <article class="product-card" data-category="<?= htmlspecialchars($product['category']) ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
+      <article class="product-card <?= $isSpecial ? 'product-card--special' : 'is-hidden' ?>" data-category="<?= htmlspecialchars($product['category']) ?>" data-special="<?= $isSpecial ? '1' : '0' ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
         <div class="product-card__media">
           <img src="<?= htmlspecialchars($product['image_url']) ?>" data-fallback="<?= BASE_URL ?>/assets/placeholder.svg" alt="<?= htmlspecialchars($product['name']) ?>" loading="lazy">
           <?php if (!empty($product['badge'])): ?>
-            <span class="product-card__badge"><?= htmlspecialchars($product['badge']) ?></span>
+            <span class="product-card__badge <?= $isSpecial ? 'product-card__badge--sale' : '' ?>"><?= htmlspecialchars($product['badge']) ?></span>
           <?php endif; ?>
         </div>
         <div class="product-card__body">
           <p class="product-card__category"><?= htmlspecialchars($product['category']) ?></p>
-          <div class="product-card__row">
+          <div class="product-card__row" style="align-items:flex-start;">
             <h3 class="product-card__name"><a href="<?= BASE_URL ?>/product.php?id=<?= (int) $product['id'] ?>"><?= htmlspecialchars($product['name']) ?></a></h3>
-            <span class="product-card__price"><?= mff_money($product['price']) ?></span>
+            <div style="text-align:right;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;">
+              <span class="product-card__price <?= $isSpecial ? 'product-card__price--sale' : '' ?>"><?= mff_money($product['price']) ?></span>
+              <?php if (!empty($product['original_price']) && $product['original_price'] > $product['price']): ?>
+                <span class="product-card__was-price">Was <del><?= mff_money($product['original_price']) ?></del></span>
+              <?php endif; ?>
+            </div>
           </div>
           <p class="product-card__stock">
             <?php if ($isLowStock): ?>
@@ -94,6 +107,7 @@ require __DIR__ . '/../includes/header.php';
       </article>
     <?php endforeach; ?>
   </div>
+  <?php endif; ?>
 </section>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

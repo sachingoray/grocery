@@ -7,8 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
     $pdo = mff_db();
     $orderId = (int) ($_POST['order_id'] ?? 0);
     if ($pdo !== null) {
-        $stmt = $pdo->prepare('UPDATE orders SET status = "cancelled" WHERE id = :id AND status = "pending"');
-        $stmt->execute(['id' => $orderId]);
+        $stmt = $pdo->prepare('UPDATE orders SET status = "cancelled" WHERE id = :id AND user_id = :uid AND status = "pending"');
+        $stmt->execute(['id' => $orderId, 'uid' => $_SESSION['user_id'] ?? 0]);
     }
     mff_set_flash('success', 'Order cancelled.');
     header('Location: ' . BASE_URL . '/my_orders.php');
@@ -20,7 +20,17 @@ $activeNav = 'orders';
 
 $pdo = mff_db();
 if ($pdo !== null) {
-    $orders = $pdo->query('SELECT * FROM orders ORDER BY created_at DESC')->fetchAll();
+    $userId = $_SESSION['user_id'] ?? null;
+    $userName = $_SESSION['user_name'] ?? '';
+
+    if (mff_role() === 'admin') {
+        $stmt = $pdo->query('SELECT * FROM orders ORDER BY created_at DESC');
+    } else {
+        $stmt = $pdo->prepare('SELECT * FROM orders WHERE user_id = :uid OR customer_name = :cname ORDER BY created_at DESC');
+        $stmt->execute(['uid' => $userId, 'cname' => $userName]);
+    }
+    $orders = $stmt->fetchAll();
+
     foreach ($orders as &$order) {
         $itemStmt = $pdo->prepare('SELECT * FROM order_items WHERE order_id = :id');
         $itemStmt->execute(['id' => $order['id']]);

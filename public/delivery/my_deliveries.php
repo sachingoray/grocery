@@ -2,8 +2,6 @@
 require_once __DIR__ . '/../../includes/session.php';
 mff_require_role(['delivery', 'admin']);
 
-// In Phase 2 this filters by the logged-in driver's name; for now it shows
-// every order currently out for delivery or processing.
 $currentDriver = $_SESSION['user_name'] ?? 'Chris Allen';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_status') {
@@ -12,8 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     $status = $_POST['status'] ?? 'processing';
 
     if ($pdo !== null && in_array($status, ['processing', 'out_for_delivery', 'delivered'], true)) {
-        $stmt = $pdo->prepare('UPDATE orders SET status = :status WHERE id = :id');
-        $stmt->execute(['status' => $status, 'id' => $orderId]);
+        $stmt = $pdo->prepare('UPDATE orders SET status = :status, driver = COALESCE(driver, :driver) WHERE id = :id');
+        $stmt->execute(['status' => $status, 'driver' => $currentDriver, 'id' => $orderId]);
         mff_set_flash('success', 'Delivery marked ' . str_replace('_', ' ', $status) . '.');
     } else {
         mff_set_flash('info', 'No database connected — status not persisted (demo mode).');
@@ -23,9 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
 }
 
 $pdo = mff_db();
-$orders = $pdo !== null
-    ? $pdo->query("SELECT * FROM orders WHERE status IN ('processing','out_for_delivery') ORDER BY created_at ASC")->fetchAll()
-    : array_filter(mff_orders_fallback(), fn($o) => in_array($o['status'], ['processing', 'out_for_delivery'], true));
+if ($pdo !== null) {
+    if (mff_role() === 'admin') {
+        $orders = $pdo->query("SELECT * FROM orders WHERE status IN ('processing','out_for_delivery') ORDER BY created_at ASC")->fetchAll();
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM orders WHERE (driver = :driver OR driver IS NULL) AND status IN ('processing','out_for_delivery') ORDER BY created_at ASC");
+        $stmt->execute(['driver' => $currentDriver]);
+        $orders = $stmt->fetchAll();
+    }
+} else {
+    $orders = array_filter(mff_orders_fallback(), fn($o) => in_array($o['status'], ['processing', 'out_for_delivery'], true));
+}
 
 $statusLabels = ['processing' => 'Processing', 'out_for_delivery' => 'Out for delivery', 'delivered' => 'Delivered'];
 

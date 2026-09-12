@@ -66,10 +66,16 @@ function initCatalogueFilters() {
 
   const apply = () => {
     const query = (search?.value || '').toLowerCase().trim();
-    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'all';
+    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'specials';
     let visible = 0;
     cards.forEach(card => {
-      const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+      const isSpecial = card.dataset.special === '1';
+      let matchesCategory = false;
+      if (activeCategory === 'specials') {
+        matchesCategory = isSpecial;
+      } else {
+        matchesCategory = card.dataset.category === activeCategory;
+      }
       const matchesSearch = (card.dataset.search || '').includes(query);
       const show = matchesCategory && matchesSearch;
       card.classList.toggle('is-hidden', !show);
@@ -84,6 +90,9 @@ function initCatalogueFilters() {
     btn.classList.add('filter-button--active');
     apply();
   }));
+
+  // Run on page load with the default active filter (Weekly Specials)
+  apply();
 }
 
 /** Swap in a neutral placeholder if a product photo fails to load. */
