@@ -68,15 +68,11 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
   </p>
 
   <div style="margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.25rem;">
-    <p style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#56715f;">Quick role shortcuts (Phase 1 demo)</p>
-    <div class="role-switcher" style="margin-top:.5rem;">
-      <?php foreach (['customer' => 'Customer', 'admin' => 'Admin', 'delivery' => 'Delivery'] as $roleKey => $roleLabel): ?>
-        <form method="post" action="<?= BASE_URL ?>/set_role.php" class="role-switcher__form">
-          <input type="hidden" name="role" value="<?= $roleKey ?>">
-          <input type="hidden" name="redirect" value="/index.php">
-          <button type="submit" class="role-pill"><?= $roleLabel ?></button>
-        </form>
-      <?php endforeach; ?>
+    <p style="font-size:.75rem;font-weight:700;color:var(--leaf);margin-bottom:.5rem;">Demo Testing Credentials</p>
+    <div style="font-size:0.75rem;color:#56715f;line-height:1.6;background:#fdfcf9;border:1px solid var(--line);border-radius:0.5rem;padding:0.75rem;">
+      <div>🛡️ <strong>Admin:</strong> <code>admin@maxifinefoods.com.au</code> / <code>admin123</code></div>
+      <div>🚚 <strong>Driver:</strong> <code>driver@maxifinefoods.com.au</code> / <code>driver123</code></div>
+      <div>🛍️ <strong>Customer:</strong> <code>customer@maxifinefoods.com.au</code> / <code>customer123</code></div>
     </div>
   </div>
 </div>

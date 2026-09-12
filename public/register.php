@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contactNumber = trim($_POST['contact_number'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
-    $role = $_POST['role'] ?? 'customer';
+    $role = 'customer'; // Public registrations are always Customer accounts
 
     if ($name === '') $errors[] = 'Name is required.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
@@ -18,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (strlen($password) < 8) $errors[] = 'Password must be at least 8 characters.';
     if ($password !== $confirmPassword) $errors[] = 'Passwords do not match.';
-    if (!in_array($role, ['customer', 'admin', 'delivery'], true)) $errors[] = 'Choose a valid role.';
 
     if (empty($errors)) {
         $pdo = mff_db();
@@ -96,14 +95,6 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     <div class="form-field">
       <label for="confirm_password">Confirm Password</label>
       <input id="confirm_password" name="confirm_password" type="password" required minlength="8">
-    </div>
-    <div class="form-field">
-      <label for="role">Account role</label>
-      <select id="role" name="role">
-        <option value="customer">Customer</option>
-        <option value="delivery">Delivery driver</option>
-        <option value="admin">Admin</option>
-      </select>
     </div>
     <button type="submit" class="btn-tomato" style="width:100%;justify-content:center;">Create account</button>
   </form>
