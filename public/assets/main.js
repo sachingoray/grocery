@@ -66,14 +66,12 @@ function initCatalogueFilters() {
 
   const apply = () => {
     const query = (search?.value || '').toLowerCase().trim();
-    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'all';
+    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'specials';
     let visible = 0;
     cards.forEach(card => {
       const isSpecial = card.dataset.special === '1';
       let matchesCategory = false;
-      if (activeCategory === 'all') {
-        matchesCategory = true;
-      } else if (activeCategory === 'specials') {
+      if (activeCategory === 'specials') {
         matchesCategory = isSpecial;
       } else {
         matchesCategory = card.dataset.category === activeCategory;
