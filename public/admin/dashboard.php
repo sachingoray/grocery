@@ -1,6 +1,8 @@
 <?php
 require_once file_exists(__DIR__ . '/../../includes/session.php') ? __DIR__ . '/../../includes/session.php' : __DIR__ . '/../includes/session.php';
-mff_require_role(['admin']);
+mff_require_role(['admin', 'logistics_manager', 'inventory_manager', 'support_staff']);
+
+$userRole = mff_role();
 
 $pdo = mff_db();
 if ($pdo !== null) {
@@ -54,21 +56,29 @@ $statusLabels = [
     'out_for_delivery' => 'Out for delivery', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled',
 ];
 
-$pageTitle = 'Admin Dashboard';
+$pageTitle = mff_role_label($userRole) . ' Dashboard';
 $activeNav = 'admin';
 require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../includes/header.php' : __DIR__ . '/../includes/header.php';
 ?>
 
 <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.25rem;">
   <div>
-    <p class="section-eyebrow">Store management</p>
-    <h1 class="section-title">Admin dashboard</h1>
+    <p class="section-eyebrow"><?= htmlspecialchars(mff_role_label($userRole)) ?> Workspace</p>
+    <h1 class="section-title">Operations Dashboard</h1>
   </div>
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-    <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="btn-outline">Manage orders</a>
-    <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline">Manage drivers</a>
-    <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline">👥 Manage users</a>
-    <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato">Add new product</a>
+    <?php if (in_array($userRole, ['admin', 'logistics_manager', 'support_staff'], true)): ?>
+      <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="btn-outline">Manage orders</a>
+    <?php endif; ?>
+    <?php if (in_array($userRole, ['admin', 'logistics_manager'], true)): ?>
+      <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="btn-outline">Manage drivers</a>
+    <?php endif; ?>
+    <?php if ($userRole === 'admin'): ?>
+      <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline">👥 Manage users</a>
+    <?php endif; ?>
+    <?php if (in_array($userRole, ['admin', 'inventory_manager'], true)): ?>
+      <a href="<?= BASE_URL ?>/admin/manage_products.php" class="btn-tomato">Add / Edit products</a>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -246,8 +256,14 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
             <td>
               <?php if ($u['role'] === 'admin'): ?>
                 <span style="background:#d1fae5;color:#065f46;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🛡️ Admin</span>
+              <?php elseif ($u['role'] === 'logistics_manager'): ?>
+                <span style="background:#fef3c7;color:#92400e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🚚 Fleet Mgr</span>
+              <?php elseif ($u['role'] === 'inventory_manager'): ?>
+                <span style="background:#dbeafe;color:#1e3a8a;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">📦 Product Mgr</span>
+              <?php elseif ($u['role'] === 'support_staff'): ?>
+                <span style="background:#f3e8ff;color:#581c87;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🎧 Support Staff</span>
               <?php elseif ($u['role'] === 'delivery'): ?>
-                <span style="background:#fef3c7;color:#92400e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🚚 Delivery Driver</span>
+                <span style="background:#fef9c3;color:#854d0e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🚚 Driver</span>
               <?php else: ?>
                 <span style="background:#e0f2fe;color:#0369a1;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;">🛍️ Customer</span>
               <?php endif; ?>
@@ -275,9 +291,13 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
               </div>
             </td>
             <td>
-              <a href="<?= BASE_URL ?>/admin/manage_users.php?edit=<?= (int)$u['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
-                <i data-lucide="shield" class="icon-xs"></i> Manage User
-              </a>
+              <?php if ($userRole === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/admin/manage_users.php?edit=<?= (int)$u['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
+                  <i data-lucide="shield" class="icon-xs"></i> Manage User
+                </a>
+              <?php else: ?>
+                <span style="font-size:0.8rem;color:#8ba593;">View Only</span>
+              <?php endif; ?>
             </td>
           </tr>
         <?php endforeach; ?>

@@ -59,12 +59,37 @@ $cartCount = cart_count();
             🚚 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Driver') ?> (Delivery)
           </span>
           <a class="nav-action" href="<?= BASE_URL ?>/logout.php" style="color:var(--tomato);">Log out</a>
+        <?php elseif ($currentRole === 'logistics_manager'): ?>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/dashboard.php">Dashboard</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_drivers' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_drivers.php">Drivers Fleet</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Dispatch Orders</a>
+          <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
+          <span style="font-size:.825rem;color:#78350f;background:#fef3c7;padding:.35rem .75rem;border-radius:999px;font-weight:600;">
+            🚚 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Logistics Mgr') ?> (Fleet Mgr)
+          </span>
+          <a class="nav-action" href="<?= BASE_URL ?>/logout.php" style="color:var(--tomato);">Log out</a>
+        <?php elseif ($currentRole === 'inventory_manager'): ?>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/dashboard.php">Dashboard</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_products' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_products.php">Product Catalog</a>
+          <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
+          <span style="font-size:.825rem;color:#1e3a8a;background:#dbeafe;padding:.35rem .75rem;border-radius:999px;font-weight:600;">
+            📦 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Inventory Mgr') ?> (Product Mgr)
+          </span>
+          <a class="nav-action" href="<?= BASE_URL ?>/logout.php" style="color:var(--tomato);">Log out</a>
+        <?php elseif ($currentRole === 'support_staff'): ?>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/dashboard.php">Dashboard</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Customer Orders</a>
+          <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
+          <span style="font-size:.825rem;color:#581c87;background:#f3e8ff;padding:.35rem .75rem;border-radius:999px;font-weight:600;">
+            🎧 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Support') ?> (Support Staff)
+          </span>
+          <a class="nav-action" href="<?= BASE_URL ?>/logout.php" style="color:var(--tomato);">Log out</a>
         <?php elseif ($currentRole === 'admin'): ?>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/dashboard.php">Dashboard</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Orders</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_products' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_products.php">Products</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_drivers' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_drivers.php">Drivers</a>
-          <a class="nav-action <?= ($activeNav ?? '') === 'admin_users' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_users.php">Users</a>
+          <a class="nav-action <?= ($activeNav ?? '') === 'admin_users' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_users.php">Staff &amp; Users</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span style="font-size:.825rem;color:#065f46;background:#d1fae5;padding:.35rem .75rem;border-radius:999px;font-weight:600;">
             🛡️ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?> (Admin)

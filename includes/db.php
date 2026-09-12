@@ -512,10 +512,15 @@ function mff_db(): ?PDO
 function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
 {
     static $initialized = false;
-    if ($initialized) return;
-    $initialized = true;
-
     $autoInc = ($driver === 'sqlite') ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT AUTO_INCREMENT PRIMARY KEY';
+
+    if ($driver === 'mysql') {
+        try {
+            $pdo->exec("ALTER TABLE users MODIFY COLUMN role ENUM('customer', 'admin', 'delivery', 'inventory_manager', 'logistics_manager', 'support_staff') NOT NULL DEFAULT 'customer'");
+        } catch (Exception $e) {
+            // Table may not exist yet or column already updated
+        }
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id {$autoInc},
@@ -587,22 +592,34 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         }
     }
 
-    // Seed default users if empty
-    $userCount = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
-    if ($userCount === 0) {
-        $insertUser = $pdo->prepare(
-            'INSERT INTO users (name, email, password_hash, role, contact_number)
-             VALUES (:name, :email, :hash, :role, :contact)'
-        );
-        $seedUsers = [
-            ['Admin User', 'admin@maxifinefoods.com.au', password_hash('admin123', PASSWORD_DEFAULT), 'admin', '1800 629 436'],
-            ['Chris Allen', 'driver@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0412 998 112'],
-            ['Jordan Lee', 'jordan@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0433 112 445'],
-            ['Emma Wilson', 'customer@maxifinefoods.com.au', password_hash('customer123', PASSWORD_DEFAULT), 'customer', '0412 345 678'],
-        ];
-        foreach ($seedUsers as $u) {
+    // Seed or sync default staff & demo accounts
+    $insertUser = $pdo->prepare(
+        'INSERT INTO users (name, email, password_hash, role, contact_number, created_at)
+         VALUES (:name, :email, :hash, :role, :contact, CURRENT_TIMESTAMP)'
+    );
+    $checkUser = $pdo->prepare('SELECT id, role FROM users WHERE email = :email');
+    $updateUser = $pdo->prepare('UPDATE users SET role = :role, password_hash = :hash, name = :name WHERE email = :email');
+
+    $seedUsers = [
+        ['Admin User', 'admin@maxifinefoods.com.au', password_hash('admin123', PASSWORD_DEFAULT), 'admin', '1800 629 436'],
+        ['Marcus Vance', 'logistics@maxifinefoods.com.au', password_hash('logistics123', PASSWORD_DEFAULT), 'logistics_manager', '0411 778 990'],
+        ['Elena Rostova', 'inventory@maxifinefoods.com.au', password_hash('inventory123', PASSWORD_DEFAULT), 'inventory_manager', '0422 334 556'],
+        ['Liam O\'Connor', 'support@maxifinefoods.com.au', password_hash('support123', PASSWORD_DEFAULT), 'support_staff', '0433 889 112'],
+        ['Chris Allen', 'driver@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0412 998 112'],
+        ['Jordan Lee', 'jordan@maxifinefoods.com.au', password_hash('driver123', PASSWORD_DEFAULT), 'delivery', '0433 112 445'],
+        ['Emma Wilson', 'customer@maxifinefoods.com.au', password_hash('customer123', PASSWORD_DEFAULT), 'customer', '0412 345 678'],
+    ];
+
+    foreach ($seedUsers as $u) {
+        $checkUser->execute(['email' => $u[1]]);
+        $existing = $checkUser->fetch();
+        if (!$existing) {
             $insertUser->execute([
                 'name' => $u[0], 'email' => $u[1], 'hash' => $u[2], 'role' => $u[3], 'contact' => $u[4],
+            ]);
+        } else {
+            $updateUser->execute([
+                'role' => $u[3], 'hash' => $u[2], 'name' => $u[0], 'email' => $u[1],
             ]);
         }
     }

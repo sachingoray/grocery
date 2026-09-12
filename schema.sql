@@ -18,7 +18,7 @@ CREATE TABLE users (
     name VARCHAR(120) NOT NULL,
     email VARCHAR(190) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('customer', 'admin', 'delivery') NOT NULL DEFAULT 'customer',
+    role ENUM('customer', 'admin', 'delivery', 'inventory_manager', 'logistics_manager', 'support_staff') NOT NULL DEFAULT 'customer',
     contact_number VARCHAR(40) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -96,13 +96,15 @@ CREATE TABLE feedback (
 -- SEED DATA
 -- ====================================================================
 
--- Seed Users (Passwords: admin123, driver123, customer123)
+-- Seed Users (Passwords: admin123, logistics123, inventory123, support123, driver123, customer123)
 INSERT INTO users (id, name, email, password_hash, role, contact_number) VALUES
 (1, 'Maxi Admin', 'admin@maxifinefoods.com.au', '$2y$10$jthKjHJZbqhQfY2jx1pVi.gbxRt8QjiK12Gb1kTjejKdZPlLuGnVa', 'admin', '0400 000 001'),
-(2, 'Chris Allen', 'driver@maxifinefoods.com.au', '$2y$10$6v09e2yQrbb2DDm.gEHu9OhCPBz4Mt9t.mgig46GWDN7ZmcOoJ3x6', 'delivery', '0400 000 002'),
-(3, 'Jordan Lee', 'jordan@maxifinefoods.com.au', '$2y$10$6v09e2yQrbb2DDm.gEHu9OhCPBz4Mt9t.mgig46GWDN7ZmcOoJ3x6', 'delivery', '0400 000 003'),
-(4, 'Emma Wilson', 'customer@gmail.com', '$2y$10$.He9ABf2cvWwB01Q4YEQSeBh8gltkQ5PU7FhSUp34VdgaS0hcFm72', 'customer', '0412 345 678'),
-(5, 'Noah Brown', 'noah.brown@gmail.com', '$2y$10$.He9ABf2cvWwB01Q4YEQSeBh8gltkQ5PU7FhSUp34VdgaS0hcFm72', 'customer', '0433 221 998');
+(2, 'Marcus Vance', 'logistics@maxifinefoods.com.au', '$2y$10$jthKjHJZbqhQfY2jx1pVi.gbxRt8QjiK12Gb1kTjejKdZPlLuGnVa', 'logistics_manager', '0411 778 990'),
+(3, 'Elena Rostova', 'inventory@maxifinefoods.com.au', '$2y$10$jthKjHJZbqhQfY2jx1pVi.gbxRt8QjiK12Gb1kTjejKdZPlLuGnVa', 'inventory_manager', '0422 334 556'),
+(4, 'Liam O\'Connor', 'support@maxifinefoods.com.au', '$2y$10$jthKjHJZbqhQfY2jx1pVi.gbxRt8QjiK12Gb1kTjejKdZPlLuGnVa', 'support_staff', '0433 889 112'),
+(5, 'Chris Allen', 'driver@maxifinefoods.com.au', '$2y$10$6v09e2yQrbb2DDm.gEHu9OhCPBz4Mt9t.mgig46GWDN7ZmcOoJ3x6', 'delivery', '0400 000 002'),
+(6, 'Jordan Lee', 'jordan@maxifinefoods.com.au', '$2y$10$6v09e2yQrbb2DDm.gEHu9OhCPBz4Mt9t.mgig46GWDN7ZmcOoJ3x6', 'delivery', '0400 000 003'),
+(7, 'Emma Wilson', 'customer@maxifinefoods.com.au', '$2y$10$.He9ABf2cvWwB01Q4YEQSeBh8gltkQ5PU7FhSUp34VdgaS0hcFm72', 'customer', '0412 345 678');
 
 -- Seed Categories
 INSERT INTO categories (id, name, description) VALUES

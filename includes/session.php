@@ -54,7 +54,15 @@ if (!isset($_SESSION['role'])) {
 
 /* ---------------------------------------------------------------- roles */
 
-const MFF_ROLES = ['guest', 'customer', 'admin', 'delivery'];
+const MFF_ROLES = [
+    'guest',
+    'customer',
+    'delivery',
+    'inventory_manager',
+    'logistics_manager',
+    'support_staff',
+    'admin'
+];
 
 function mff_role(): string
 {
@@ -71,10 +79,28 @@ function mff_set_role(string $role): void
 function mff_require_role(array $allowed): void
 {
     if (!in_array(mff_role(), $allowed, true)) {
-        mff_set_flash('error', "You need to be signed in as one of: " . implode(', ', $allowed));
+        mff_set_flash('error', "Access restricted — required role: " . implode(', ', $allowed));
         header('Location: ' . BASE_URL . '/login.php');
         exit;
     }
+}
+
+function mff_is_staff(): bool
+{
+    return in_array(mff_role(), ['admin', 'inventory_manager', 'logistics_manager', 'support_staff'], true);
+}
+
+function mff_role_label(string $role): string
+{
+    return match ($role) {
+        'admin' => 'Administrator',
+        'logistics_manager' => 'Logistics & Fleet Manager',
+        'inventory_manager' => 'Product & Inventory Manager',
+        'support_staff' => 'Customer Service Staff',
+        'delivery' => 'Delivery Driver',
+        'customer' => 'Customer',
+        default => 'Guest',
+    };
 }
 
 /* ------------------------------------------------------------ flash msg */

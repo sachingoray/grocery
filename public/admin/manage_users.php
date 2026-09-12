@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($name === '') $errors[] = 'Full name is required.';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
         if (strlen($password) < 6) $errors[] = 'Password must be at least 6 characters.';
-        if (!in_array($role, ['customer', 'admin', 'delivery'], true)) $errors[] = 'Invalid role.';
+        if (!in_array($role, ['customer', 'admin', 'delivery', 'inventory_manager', 'logistics_manager', 'support_staff'], true)) $errors[] = 'Invalid role.';
 
         if (empty($errors) && $pdo !== null) {
             $check = $pdo->prepare('SELECT id FROM users WHERE email = :email');
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'role' => $role,
                     'contact' => $contactNumber,
                 ]);
-                mff_set_flash('success', 'User ' . htmlspecialchars($name) . ' (' . ucfirst($role) . ') created successfully.');
+                mff_set_flash('success', 'User ' . htmlspecialchars($name) . ' (' . mff_role_label($role) . ') created successfully.');
                 header('Location: ' . BASE_URL . '/admin/manage_users.php');
                 exit;
             }
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($userId <= 0) $errors[] = 'Invalid user ID.';
         if ($name === '') $errors[] = 'Name is required.';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required.';
-        if (!in_array($role, ['customer', 'admin', 'delivery'], true)) $errors[] = 'Invalid role.';
+        if (!in_array($role, ['customer', 'admin', 'delivery', 'inventory_manager', 'logistics_manager', 'support_staff'], true)) $errors[] = 'Invalid role.';
 
         if (empty($errors) && $pdo !== null) {
             // Check for duplicate email on other users
@@ -213,9 +213,21 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                 <span style="background:#d1fae5;color:#065f46;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
                   🛡️ Admin
                 </span>
-              <?php elseif ($u['role'] === 'delivery'): ?>
+              <?php elseif ($u['role'] === 'logistics_manager'): ?>
                 <span style="background:#fef3c7;color:#92400e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
-                  🚚 Delivery Driver
+                  🚚 Fleet Mgr
+                </span>
+              <?php elseif ($u['role'] === 'inventory_manager'): ?>
+                <span style="background:#dbeafe;color:#1e3a8a;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
+                  📦 Product Mgr
+                </span>
+              <?php elseif ($u['role'] === 'support_staff'): ?>
+                <span style="background:#f3e8ff;color:#581c87;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
+                  🎧 Support Staff
+                </span>
+              <?php elseif ($u['role'] === 'delivery'): ?>
+                <span style="background:#fef9c3;color:#854d0e;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
+                  🚚 Driver
                 </span>
               <?php else: ?>
                 <span style="background:#e0f2fe;color:#0369a1;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;">
@@ -310,9 +322,12 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <div class="form-field">
         <label for="create_role">Account Role *</label>
         <select id="create_role" name="role" required>
-          <option value="customer">🛍️ Customer (Standard User)</option>
-          <option value="delivery">🚚 Delivery Driver (Queue &amp; Status Access)</option>
-          <option value="admin">🛡️ Administrator (Full Control)</option>
+          <option value="customer">🛍️ Customer (Standard Store User)</option>
+          <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
+          <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
+          <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
+          <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
+          <option value="admin">🛡️ System Administrator (Full System Control)</option>
         </select>
       </div>
 
@@ -370,9 +385,12 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <div class="form-field">
         <label for="edit_role">Account Role *</label>
         <select id="edit_role" name="role" required>
-          <option value="customer">🛍️ Customer (Standard User)</option>
-          <option value="delivery">🚚 Delivery Driver (Delivery Queue Access)</option>
-          <option value="admin">🛡️ Administrator (Full Control)</option>
+          <option value="customer">🛍️ Customer (Standard Store User)</option>
+          <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
+          <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
+          <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
+          <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
+          <option value="admin">🛡️ System Administrator (Full System Control)</option>
         </select>
       </div>
 

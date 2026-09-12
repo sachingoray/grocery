@@ -1,6 +1,6 @@
 <?php
 require_once file_exists(__DIR__ . '/../../includes/session.php') ? __DIR__ . '/../../includes/session.php' : __DIR__ . '/../includes/session.php';
-mff_require_role(['admin']);
+mff_require_role(['admin', 'logistics_manager', 'support_staff']);
 
 $pdo = mff_db();
 
