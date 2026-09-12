@@ -51,7 +51,8 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
   </div>
 
   <div class="filter-row" role="group" aria-label="Product categories">
-    <button class="filter-button filter-button--active filter-button--specials" data-category="specials" type="button">🔥 Weekly Specials</button>
+    <button class="filter-button filter-button--active" data-category="all" type="button">🛒 All Products</button>
+    <button class="filter-button filter-button--specials" data-category="specials" type="button">🔥 Weekly Specials</button>
     <?php foreach ($categories as $category): ?>
       <button class="filter-button" data-category="<?= htmlspecialchars($category) ?>" type="button"><?= htmlspecialchars($category) ?></button>
     <?php endforeach; ?>
@@ -73,7 +74,7 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
         $isSpecial = !empty($product['is_special']) || (!empty($product['original_price']) && $product['original_price'] > $product['price']);
         $searchBlob = strtolower($product['name'] . ' ' . $product['category'] . ' ' . ($product['badge'] ?? '') . ($isSpecial ? ' special sale deal' : ''));
       ?>
-      <article class="product-card <?= $isSpecial ? 'product-card--special' : 'is-hidden' ?>" data-category="<?= htmlspecialchars($product['category']) ?>" data-special="<?= $isSpecial ? '1' : '0' ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
+      <article class="product-card <?= $isSpecial ? 'product-card--special' : '' ?>" data-category="<?= htmlspecialchars($product['category']) ?>" data-special="<?= $isSpecial ? '1' : '0' ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
         <div class="product-card__media">
           <img src="<?= htmlspecialchars($product['image_url']) ?>" data-fallback="<?= BASE_URL ?>/assets/placeholder.svg" alt="<?= htmlspecialchars($product['name']) ?>" loading="lazy">
           <?php if (!empty($product['badge'])): ?>

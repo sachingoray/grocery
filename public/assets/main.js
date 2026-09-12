@@ -66,12 +66,14 @@ function initCatalogueFilters() {
 
   const apply = () => {
     const query = (search?.value || '').toLowerCase().trim();
-    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'specials';
+    const activeCategory = document.querySelector('.filter-button--active')?.dataset.category || 'all';
     let visible = 0;
     cards.forEach(card => {
       const isSpecial = card.dataset.special === '1';
       let matchesCategory = false;
-      if (activeCategory === 'specials') {
+      if (activeCategory === 'all') {
+        matchesCategory = true;
+      } else if (activeCategory === 'specials') {
         matchesCategory = isSpecial;
       } else {
         matchesCategory = card.dataset.category === activeCategory;
@@ -91,7 +93,7 @@ function initCatalogueFilters() {
     apply();
   }));
 
-  // Run on page load with the default active filter (Weekly Specials)
+  // Run on page load
   apply();
 }
 
