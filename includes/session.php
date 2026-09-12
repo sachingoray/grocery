@@ -14,13 +14,18 @@ require_once __DIR__ . '/db.php';
  * built as BASE_URL . '/something.php' instead of a hardcoded '/something.php'.
  */
 if (!defined('BASE_URL')) {
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
     if (($pos = strpos($scriptName, '/g4')) !== false) {
         define('BASE_URL', substr($scriptName, 0, $pos + strlen('/g4')));
     } elseif (($pos = strpos($scriptName, '/public')) !== false) {
         define('BASE_URL', substr($scriptName, 0, $pos + strlen('/public')));
+    } elseif (($pos = strpos($scriptName, '/admin')) !== false) {
+        define('BASE_URL', substr($scriptName, 0, $pos));
+    } elseif (($pos = strpos($scriptName, '/delivery')) !== false) {
+        define('BASE_URL', substr($scriptName, 0, $pos));
     } else {
-        define('BASE_URL', '');
+        $dir = dirname($scriptName);
+        define('BASE_URL', ($dir === '/' || $dir === '\\' || $dir === '.') ? '' : rtrim($dir, '/\\'));
     }
 }
 

@@ -73,12 +73,30 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 </div>
 
 <div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));">
-  <div class="stat-card"><p class="stat-card__label">Total orders</p><p class="stat-card__value"><?= number_format($totalOrders) ?></p></div>
-  <div class="stat-card"><p class="stat-card__label">Revenue</p><p class="stat-card__value"><?= mff_money($totalRevenue) ?></p></div>
-  <div class="stat-card"><p class="stat-card__label">Pending orders</p><p class="stat-card__value"><?= number_format($pendingOrders) ?></p></div>
-  <div class="stat-card"><p class="stat-card__label">Registered Users</p><p class="stat-card__value"><?= number_format($totalUsers) ?></p></div>
-  <div class="stat-card"><p class="stat-card__label">Delivery drivers</p><p class="stat-card__value"><?= number_format($totalDrivers) ?></p></div>
-  <div class="stat-card"><p class="stat-card__label">Low stock items</p><p class="stat-card__value"><?= number_format($lowStock) ?></p></div>
+  <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+    <p class="stat-card__label">Total orders ↗</p>
+    <p class="stat-card__value"><?= number_format($totalOrders) ?></p>
+  </a>
+  <div class="stat-card">
+    <p class="stat-card__label">Revenue</p>
+    <p class="stat-card__value"><?= mff_money($totalRevenue) ?></p>
+  </div>
+  <a href="<?= BASE_URL ?>/admin/manage_orders.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+    <p class="stat-card__label">Pending orders ↗</p>
+    <p class="stat-card__value"><?= number_format($pendingOrders) ?></p>
+  </a>
+  <a href="<?= BASE_URL ?>/admin/manage_users.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;border:1.5px solid var(--leaf-tint, #cfe1d5);">
+    <p class="stat-card__label" style="color:var(--leaf);font-weight:700;">👥 Registered Users ↗</p>
+    <p class="stat-card__value"><?= number_format($totalUsers) ?></p>
+  </a>
+  <a href="<?= BASE_URL ?>/admin/manage_drivers.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+    <p class="stat-card__label">Delivery drivers ↗</p>
+    <p class="stat-card__value"><?= number_format($totalDrivers) ?></p>
+  </a>
+  <a href="<?= BASE_URL ?>/admin/manage_products.php" class="stat-card" style="text-decoration:none;display:block;cursor:pointer;">
+    <p class="stat-card__label">Low stock items ↗</p>
+    <p class="stat-card__value"><?= number_format($lowStock) ?></p>
+  </a>
 </div>
 
 <!-- Delivery Fleet Overview Section -->
@@ -176,12 +194,15 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
 </div>
 
 <!-- Recently Registered Users Section -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.75rem;">
   <div>
     <h2 style="font-size:1.4rem;font-weight:700;margin:0;color:var(--ink);">👥 Recently Registered Users</h2>
     <p style="font-size:0.85rem;color:#56715f;margin:0.25rem 0 0;">New customer and staff registrations in real time</p>
   </div>
-  <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">View All Users (<?= number_format($totalUsers) ?>)</a>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <a href="<?= BASE_URL ?>/admin/manage_users.php?action=create" class="btn-tomato" style="font-size:0.825rem;padding:0.35rem 0.85rem;">+ Add New User</a>
+    <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline" style="font-size:0.825rem;padding:0.35rem 0.85rem;">View All Users (<?= number_format($totalUsers) ?>)</a>
+  </div>
 </div>
 
 <div class="data-table-wrap" style="margin-top:0.5rem;">
@@ -199,7 +220,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
     </thead>
     <tbody>
       <?php if (empty($recentUsers)): ?>
-        <tr><td colspan="6" style="text-align:center;color:#56715f;padding:2rem;">No registered users yet.</td></tr>
+        <tr><td colspan="6" style="text-align:center;color:#56715f;padding:2rem;">No registered users yet. <a href="<?= BASE_URL ?>/admin/manage_users.php?action=create" style="color:var(--tomato);font-weight:700;">Add a user</a></td></tr>
       <?php else: ?>
         <?php foreach ($recentUsers as $u): 
           $regTime = strtotime($u['created_at'] ?? 'now');
@@ -254,7 +275,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
               </div>
             </td>
             <td>
-              <a href="<?= BASE_URL ?>/admin/manage_users.php" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
+              <a href="<?= BASE_URL ?>/admin/manage_users.php?edit=<?= (int)$u['id'] ?>" class="btn-outline" style="font-size:0.775rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.3rem;">
                 <i data-lucide="shield" class="icon-xs"></i> Manage User
               </a>
             </td>

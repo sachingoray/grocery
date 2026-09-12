@@ -247,6 +247,8 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
             <td>
               <div style="display:flex;gap:.4rem;align-items:center;">
                 <button type="button"
+                  id="edit-btn-<?= (int)$u['id'] ?>"
+                  data-user-id="<?= (int)$u['id'] ?>"
                   onclick="openEditUserModal(<?= (int)$u['id'] ?>, '<?= addslashes(htmlspecialchars($u['name'])) ?>', '<?= addslashes(htmlspecialchars($u['email'])) ?>', '<?= addslashes(htmlspecialchars($u['contact_number'] ?? '')) ?>', '<?= addslashes(htmlspecialchars($u['role'])) ?>')"
                   class="btn-outline" style="font-size:.775rem;padding:.3rem .65rem;display:inline-flex;align-items:center;gap:.3rem;">
                   <i data-lucide="edit-3" class="icon-xs"></i> Edit &amp; Password
@@ -418,6 +420,19 @@ function generateRandomPass() {
   }
   document.getElementById('edit_password').value = pass;
 }
+
+// Auto open modal if requested via URL parameter (?action=create or ?edit=ID)
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('action') === 'create') {
+    const modal = document.getElementById('createUserModal');
+    if (modal) modal.classList.remove('hidden');
+  } else if (params.get('edit')) {
+    const editId = params.get('edit');
+    const btn = document.getElementById('edit-btn-' + editId);
+    if (btn) btn.click();
+  }
+});
 </script>
 
 <?php require file_exists(__DIR__ . '/../../includes/footer.php') ? __DIR__ . '/../../includes/footer.php' : __DIR__ . '/../includes/footer.php'; ?>
