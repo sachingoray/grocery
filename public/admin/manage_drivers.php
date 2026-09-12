@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/session.php';
+require_once file_exists(__DIR__ . '/../../includes/session.php') ? __DIR__ . '/../../includes/session.php' : __DIR__ . '/../includes/session.php';
 mff_require_role(['admin']);
 
 $pdo = mff_db();
@@ -99,7 +99,7 @@ if ($pdo !== null) {
 
 $pageTitle = 'Manage Delivery Drivers';
 $activeNav = 'admin_drivers';
-require __DIR__ . '/../../includes/header.php';
+require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../includes/header.php' : __DIR__ . '/../includes/header.php';
 ?>
 
 <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.25rem;">
@@ -216,4 +216,4 @@ require __DIR__ . '/../../includes/header.php';
   </table>
 </div>
 
-<?php require __DIR__ . '/../../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../../includes/footer.php') ? __DIR__ . '/../../includes/footer.php' : __DIR__ . '/../includes/footer.php'; ?>

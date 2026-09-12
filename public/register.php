@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 $errors = [];
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Register';
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 
 <div class="card-artisan" style="max-width:30rem;margin:0 auto;">
@@ -101,4 +101,4 @@ require __DIR__ . '/../includes/header.php';
   </p>
 </div>
 
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>

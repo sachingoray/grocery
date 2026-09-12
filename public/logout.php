@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 unset($_SESSION['user_id'], $_SESSION['user_name'], $_SESSION['user_email']);
 mff_set_role('guest');

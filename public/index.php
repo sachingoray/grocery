@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 $pageTitle = 'Shop';
 $activeNav = 'shop';
 $products = mff_get_products();
 $categories = array_values(array_unique(array_column($products, 'category')));
 
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 
 <section class="hero-card" aria-labelledby="shop-title">
@@ -110,4 +110,4 @@ require __DIR__ . '/../includes/header.php';
   <?php endif; ?>
 </section>
 
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>

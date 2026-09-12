@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 $order = $_SESSION['last_order'] ?? null;
 if ($order === null) {
@@ -11,7 +11,7 @@ if ($order === null) {
 $pageTitle = 'Order Confirmed';
 $activeNav = 'orders';
 
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 
 <div class="hero-card" style="background:var(--leaf);min-height:180px;">
@@ -58,4 +58,4 @@ require __DIR__ . '/../includes/header.php';
   <a href="<?= BASE_URL ?>/index.php" class="btn-ink">Continue shopping</a>
 </div>
 
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>

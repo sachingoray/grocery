@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/session.php';
+require_once file_exists(__DIR__ . '/../../includes/session.php') ? __DIR__ . '/../../includes/session.php' : __DIR__ . '/../includes/session.php';
 mff_require_role(['admin']);
 
 $pdo = mff_db();
@@ -59,7 +59,7 @@ $products = mff_get_products();
 
 $pageTitle = 'Manage Products';
 $activeNav = 'admin_products';
-require __DIR__ . '/../../includes/header.php';
+require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../includes/header.php' : __DIR__ . '/../includes/header.php';
 ?>
 
 <p class="section-eyebrow">Store management</p>
@@ -139,4 +139,4 @@ require __DIR__ . '/../../includes/header.php';
   </table>
 </div>
 
-<?php require __DIR__ . '/../../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../../includes/footer.php') ? __DIR__ . '/../../includes/footer.php' : __DIR__ . '/../includes/footer.php'; ?>

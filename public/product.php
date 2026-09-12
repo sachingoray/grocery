@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 $productId = (int) ($_GET['id'] ?? 0);
 $product = mff_get_product($productId);
@@ -22,7 +22,7 @@ $pageTitle = $product['name'];
 $activeNav = 'shop';
 $isLowStock = $product['stock'] <= ($product['low_stock_threshold'] ?? 10);
 
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 
 <nav aria-label="Breadcrumb" style="font-size:.8rem;color:#56715f;margin-bottom:1.25rem;">
@@ -93,4 +93,4 @@ require __DIR__ . '/../includes/header.php';
   });
 </script>
 
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>

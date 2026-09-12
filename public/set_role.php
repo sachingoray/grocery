@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mff_set_role($_POST['role'] ?? 'guest');

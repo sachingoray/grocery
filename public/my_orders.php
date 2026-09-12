@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 
 mff_require_role(['customer', 'admin']);
 
@@ -47,7 +47,7 @@ $statusLabels = [
 ];
 $statusProgress = ['pending' => 10, 'processing' => 40, 'out_for_delivery' => 75, 'delivered' => 100, 'cancelled' => 0];
 
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 
 <p class="section-eyebrow">Track your order</p>
@@ -94,4 +94,4 @@ require __DIR__ . '/../includes/header.php';
   </article>
 <?php endforeach; ?>
 
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>
