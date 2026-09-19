@@ -31,66 +31,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $pdo = mff_db();
-        $orderId = null;
+        if ($paymentMethod === 'credit_card') {
+            require_once __DIR__ . '/../includes/stripe_config.php';
+            $domain = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . BASE_URL;
+            
+            $lineItems = [];
+            foreach ($cart['items'] as $item) {
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency' => 'aud',
+                        'product_data' => [
+                            'name' => $item['name'],
+                        ],
+                        'unit_amount' => (int) round($item['price'] * 100),
+                    ],
+                    'quantity' => $item['quantity'],
+                ];
+            }
+            
+            if ($cart['tax'] > 0) {
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency' => 'aud',
+                        'product_data' => [
+                            'name' => 'Tax (GST)',
+                        ],
+                        'unit_amount' => (int) round($cart['tax'] * 100),
+                    ],
+                    'quantity' => 1,
+                ];
+            }
 
-        if ($pdo !== null) {
             try {
-                $pdo->beginTransaction();
-
-                $stmt = $pdo->prepare(
-                    'INSERT INTO orders (user_id, customer_name, contact_number, delivery_address, delivery_instructions,
-                                          payment_method, subtotal, tax, total, status, created_at)
-                     VALUES (:user_id, :name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", CURRENT_TIMESTAMP)'
-                );
-                $stmt->execute([
-                    'user_id' => $_SESSION['user_id'] ?? null,
-                    'name' => $fullName, 'contact' => $contactNumber, 'address' => $address,
-                    'instructions' => $instructions, 'payment' => $paymentMethod,
-                    'subtotal' => $cart['subtotal'], 'tax' => $cart['tax'], 'total' => $cart['total'],
+                $checkout_session = \Stripe\Checkout\Session::create([
+                    'payment_method_types' => ['card'],
+                    'line_items' => $lineItems,
+                    'mode' => 'payment',
+                    'success_url' => $domain . '/stripe_success.php?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => $domain . '/stripe_cancel.php',
                 ]);
-                $orderId = (int) $pdo->lastInsertId();
-
-                $itemStmt = $pdo->prepare(
-                    'INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (:order_id, :product_id, :name, :price, :quantity)'
-                );
-                foreach ($cart['items'] as $item) {
-                    $itemStmt->execute([
-                        'order_id' => $orderId, 'product_id' => $item['product_id'],
-                        'name' => $item['name'], 'price' => $item['price'], 'quantity' => $item['quantity'],
-                    ]);
-                }
-
-                $pdo->commit();
-            } catch (PDOException $e) {
-                $pdo->rollBack();
-                error_log('[mff] order insert failed: ' . $e->getMessage());
-                $errors[] = 'We could not place your order right now — please try again.';
+                
+                $_SESSION['pending_checkout'] = [
+                    'customer_name' => $fullName,
+                    'contact_number' => $contactNumber,
+                    'delivery_address' => $address,
+                    'delivery_instructions' => $instructions,
+                    'payment_method' => $paymentMethod,
+                ];
+                
+                header("HTTP/1.1 303 See Other");
+                header("Location: " . $checkout_session->url);
+                exit;
+            } catch (Exception $e) {
+                error_log('[mff] stripe checkout error: ' . $e->getMessage());
+                $errors[] = 'Stripe Error: Could not initialize payment.';
             }
         }
+        
+        if (empty($errors) && $paymentMethod !== 'credit_card') {
+            $pdo = mff_db();
+            $orderId = null;
 
-        if (empty($errors)) {
-            // No live DB (or insert succeeded) — either way, stash a session
-            // receipt so order_confirmation.php has something to show even
-            // in fallback mode.
-            $_SESSION['last_order'] = [
-                'id' => $orderId ?? random_int(3000, 3999),
-                'customer_name' => $fullName,
-                'contact_number' => $contactNumber,
-                'delivery_address' => $address,
-                'delivery_instructions' => $instructions,
-                'payment_method' => $paymentMethod,
-                'items' => $cart['items'],
-                'subtotal' => $cart['subtotal'],
-                'tax' => $cart['tax'],
-                'total' => $cart['total'],
-                'status' => 'pending',
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-            cart_clear();
-            mff_set_role('customer');
-            header('Location: ' . BASE_URL . '/order_confirmation.php');
-            exit;
+            if ($pdo !== null) {
+                try {
+                    $pdo->beginTransaction();
+
+                    $stmt = $pdo->prepare(
+                        'INSERT INTO orders (user_id, customer_name, contact_number, delivery_address, delivery_instructions,
+                                              payment_method, subtotal, tax, total, status, created_at)
+                         VALUES (:user_id, :name, :contact, :address, :instructions, :payment, :subtotal, :tax, :total, "pending", CURRENT_TIMESTAMP)'
+                    );
+                    $stmt->execute([
+                        'user_id' => $_SESSION['user_id'] ?? null,
+                        'name' => $fullName, 'contact' => $contactNumber, 'address' => $address,
+                        'instructions' => $instructions, 'payment' => $paymentMethod,
+                        'subtotal' => $cart['subtotal'], 'tax' => $cart['tax'], 'total' => $cart['total'],
+                    ]);
+                    $orderId = (int) $pdo->lastInsertId();
+
+                    $itemStmt = $pdo->prepare(
+                        'INSERT INTO order_items (order_id, product_id, name, price, quantity) VALUES (:order_id, :product_id, :name, :price, :quantity)'
+                    );
+                    foreach ($cart['items'] as $item) {
+                        $itemStmt->execute([
+                            'order_id' => $orderId, 'product_id' => $item['product_id'],
+                            'name' => $item['name'], 'price' => $item['price'], 'quantity' => $item['quantity'],
+                        ]);
+                    }
+
+                    $pdo->commit();
+                } catch (PDOException $e) {
+                    $pdo->rollBack();
+                    error_log('[mff] order insert failed: ' . $e->getMessage());
+                    $errors[] = 'We could not place your order right now — please try again.';
+                }
+            }
+
+            if (empty($errors)) {
+                // No live DB (or insert succeeded) — either way, stash a session
+                // receipt so order_confirmation.php has something to show even
+                // in fallback mode.
+                $_SESSION['last_order'] = [
+                    'id' => $orderId ?? random_int(3000, 3999),
+                    'customer_name' => $fullName,
+                    'contact_number' => $contactNumber,
+                    'delivery_address' => $address,
+                    'delivery_instructions' => $instructions,
+                    'payment_method' => $paymentMethod,
+                    'items' => $cart['items'],
+                    'subtotal' => $cart['subtotal'],
+                    'tax' => $cart['tax'],
+                    'total' => $cart['total'],
+                    'status' => 'pending',
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                cart_clear();
+                mff_set_role('customer');
+                header('Location: ' . BASE_URL . '/order_confirmation.php');
+                exit;
+            }
         }
     }
 }

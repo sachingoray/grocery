@@ -1,0 +1,6 @@
+/vendor/
+composer.phar
+includes/stripe_keys.local.php
+.env
+.DS_Store
+Thumbs.db
