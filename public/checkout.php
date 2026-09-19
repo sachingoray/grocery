@@ -217,11 +217,30 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     </div>
 
     <fieldset style="margin-top:1.75rem;border:none;padding:0;">
-      <legend style="font-size:.875rem;font-weight:700;">Payment method</legend>
-      <div class="payment-options">
-        <label><input name="payment_method" value="cash_on_delivery" type="radio" checked> Cash on delivery</label>
-        <label><input name="payment_method" value="credit_card" type="radio"> Credit card</label>
-        <label><input name="payment_method" value="paypal" type="radio"> PayPal</label>
+      <legend style="font-size:.875rem;font-weight:700;margin-bottom:0.5rem;">Select Payment Method</legend>
+      <div class="payment-options" style="display:flex;flex-direction:column;gap:0.75rem;">
+        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--line,#e2e8f0);border-radius:8px;cursor:pointer;background:#fff;">
+          <input name="payment_method" value="credit_card" type="radio" checked onchange="updatePayButton()">
+          <div>
+            <span style="font-weight:600;">Credit / Debit Card</span>
+            <span style="display:inline-block;margin-left:0.5rem;background:#635bff;color:#fff;font-size:0.68rem;padding:0.15rem 0.45rem;border-radius:4px;font-weight:700;letter-spacing:0.02em;">STRIPE</span>
+            <p style="margin:0.25rem 0 0;font-size:0.75rem;color:#64748b;">Pay securely via Stripe using Visa, Mastercard, AMEX, Apple Pay & Google Pay.</p>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--line,#e2e8f0);border-radius:8px;cursor:pointer;background:#fff;">
+          <input name="payment_method" value="cash_on_delivery" type="radio" onchange="updatePayButton()">
+          <div>
+            <span style="font-weight:600;">Cash on delivery</span>
+            <p style="margin:0.25rem 0 0;font-size:0.75rem;color:#64748b;">Pay with exact cash or card when your driver arrives.</p>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--line,#e2e8f0);border-radius:8px;cursor:pointer;background:#fff;">
+          <input name="payment_method" value="paypal" type="radio" onchange="updatePayButton()">
+          <div>
+            <span style="font-weight:600;">PayPal</span>
+            <p style="margin:0.25rem 0 0;font-size:0.75rem;color:#64748b;">Pay via your PayPal account balance or linked cards.</p>
+          </div>
+        </label>
       </div>
     </fieldset>
   </div>
@@ -239,8 +258,24 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     <div style="margin-top:1.25rem;border-top:1px solid var(--line);padding-top:1rem;font-weight:700;">
       Order total <span style="float:right;"><?= mff_money($cart['total']) ?></span>
     </div>
-    <button type="submit" class="btn-tomato" style="width:100%;justify-content:center;margin-top:1.5rem;">Place order</button>
+    <button id="submit-order-btn" type="submit" class="btn-tomato" style="width:100%;justify-content:center;margin-top:1.5rem;">
+      Pay with Stripe
+    </button>
   </aside>
 </form>
+
+<script>
+function updatePayButton() {
+  const method = document.querySelector('input[name="payment_method"]:checked')?.value;
+  const btn = document.getElementById('submit-order-btn');
+  if (!btn) return;
+  if (method === 'credit_card') {
+    btn.textContent = 'Pay with Stripe (Secure Checkout)';
+  } else {
+    btn.textContent = 'Place order';
+  }
+}
+document.addEventListener('DOMContentLoaded', updatePayButton);
+</script>
 
 <?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>
