@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/stripe_config.php';
+require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
+require_once file_exists(__DIR__ . '/../includes/stripe_config.php') ? __DIR__ . '/../includes/stripe_config.php' : __DIR__ . '/includes/stripe_config.php';
 
 $sessionId = $_GET['session_id'] ?? '';
 $errors = [];
@@ -94,7 +94,7 @@ try {
 }
 
 $pageTitle = 'Payment Error';
-require __DIR__ . '/../includes/header.php';
+require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 <div>
   <h1 class="section-title">Payment Error</h1>
@@ -103,4 +103,4 @@ require __DIR__ . '/../includes/header.php';
   </div>
   <p><a href="<?= BASE_URL ?>/checkout.php">Return to Checkout</a></p>
 </div>
-<?php require __DIR__ . '/../includes/footer.php'; ?>
+<?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>

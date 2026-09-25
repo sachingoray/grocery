@@ -1,6 +1,8 @@
 /vendor/
 composer.phar
 includes/stripe_keys.local.php
+includes/data/
+*.sqlite
 .env
 .DS_Store
 Thumbs.db
