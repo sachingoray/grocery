@@ -98,11 +98,23 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
               <span class="status status-instock">In stock</span>
             <?php endif; ?>
           </p>
-          <form method="post" action="<?= BASE_URL ?>/cart.php">
-            <input type="hidden" name="action" value="add">
-            <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
-            <button type="submit" class="btn-tomato" style="width:100%;justify-content:center;margin-top:1rem;">Add to cart</button>
-          </form>
+          <div class="card-cart-controls" style="margin-top:1rem; min-height: 2.75rem;" data-product-id="<?= (int) $product['id'] ?>">
+            <?php 
+              $qtyInCart = $_SESSION['cart'][$product['id']] ?? 0;
+              $qtyInCart = is_numeric($qtyInCart) ? (int)$qtyInCart : 0;
+            ?>
+            <form method="post" action="<?= BASE_URL ?>/cart.php" class="add-to-cart-form <?= $qtyInCart > 0 ? 'is-hidden' : '' ?>">
+              <input type="hidden" name="action" value="add">
+              <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
+              <button type="submit" class="btn-tomato" style="width:100%;justify-content:center;">Add to cart</button>
+            </form>
+            
+            <div class="qty-stepper <?= $qtyInCart > 0 ? '' : 'is-hidden' ?>" data-product-id="<?= (int) $product['id'] ?>" style="width: 100%; justify-content: space-between;">
+              <button type="button" class="btn-step-minus" aria-label="Decrease <?= htmlspecialchars($product['name']) ?>">&minus;</button>
+              <span data-qty-display><?= (int) $qtyInCart ?></span>
+              <button type="button" class="btn-step-plus" aria-label="Increase <?= htmlspecialchars($product['name']) ?>">+</button>
+            </div>
+          </div>
         </div>
       </article>
     <?php endforeach; ?>

@@ -209,6 +209,6 @@
 </div>
 
 <script>window.MFF_BASE_URL = <?= json_encode(BASE_URL) ?>;</script>
-<script src="<?= BASE_URL ?>/assets/main.js"></script>
+<script src="<?= BASE_URL ?>/assets/main.js?v=<?= time() ?>"></script>
 </body>
 </html>
