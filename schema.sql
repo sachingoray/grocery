@@ -6,6 +6,7 @@
 
 -- Drop in foreign-key dependency order
 DROP TABLE IF EXISTS feedback;
+DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
@@ -78,7 +79,26 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- 6. FEEDBACK TABLE (SRS FR37, FR47)
+-- 6. CART_ITEMS TABLE — per-user persistent shopping cart
+--
+-- A cart belongs to EITHER a logged-in user (user_id set) OR an anonymous
+-- browser session (guest_token set, user_id NULL), never both. Every read and
+-- write filters on this owner, which is what keeps one account's cart from
+-- being visible to another. There is deliberately no shared/global cart row.
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    guest_token CHAR(64) NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_cart_user_product (user_id, product_id),
+    UNIQUE KEY uniq_cart_guest_product (guest_token, product_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 7. FEEDBACK TABLE (SRS FR37, FR47)
 CREATE TABLE feedback (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NULL,

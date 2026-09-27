@@ -14,6 +14,15 @@ const DB_USER = 'root';
 const DB_PASS = '';
 const DB_CHARSET = 'utf8mb4';
 
+/**
+ * Seconds to wait for the MySQL server before giving up and using the SQLite
+ * fallback. The OS default is far too long for a web request — a request that
+ * cannot reach the database should fail over in about a second, not hang for
+ * half a minute. This is the single biggest lever on the "denied page takes
+ * 5-10 seconds" symptom.
+ */
+const MFF_DB_CONNECT_TIMEOUT = 2;
+
 /** @var bool True once we've confirmed a live PDO connection. */
 $GLOBALS['mff_db_live'] = false;
 
@@ -471,8 +480,20 @@ function mff_db(): ?PDO
     }
     $attempted = true;
 
-    // 1. First attempt MySQL PDO connection
-    $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', DB_HOST, DB_NAME, DB_CHARSET);
+    // 1. First attempt MySQL PDO connection.
+    //
+    // PERFORMANCE: the DSN carries an explicit connect timeout. Without it the
+    // MySQL client blocks on the OS default (commonly 30s+), so every page that
+    // could not reach MySQL sat there for many seconds before falling through
+    // to SQLite. That is exactly the "denied access takes 5-10 seconds" report:
+    // mff_require_role() denies BEFORE touching the database, but the guard was
+    // measured end-to-end on a page that then went on to query anyway. A short
+    // timeout keeps the fallback near-instant. Raise MFF_DB_CONNECT_TIMEOUT if
+    // the MySQL host is on a slow link.
+    $dsn = sprintf(
+        'mysql:host=%s;dbname=%s;charset=%s;connect_timeout=%d',
+        DB_HOST, DB_NAME, DB_CHARSET, MFF_DB_CONNECT_TIMEOUT
+    );
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -571,6 +592,35 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         name VARCHAR(160) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
         quantity INTEGER NOT NULL
+    )");
+
+    /*
+     * Persistent, per-user shopping cart.
+     *
+     * A cart is owned by EITHER a logged-in user (user_id set) OR an anonymous
+     * browser session (guest_token set, user_id NULL) — never both, never
+     * neither. Every read and every write in includes/session.php filters on
+     * the owner derived from the server-side login state, so two accounts can
+     * never see or modify each other's cart. There is deliberately no shared
+     * "global cart" row for this to fall back to.
+     *
+     * The UNIQUE constraints are what make concurrent/duplicate requests safe:
+     * at most one row per (owner, product). Written as plain `UNIQUE (...)`
+     * rather than MySQL's `UNIQUE KEY ...` so the identical DDL also parses on
+     * the SQLite fallback. MySQL treats NULLs as distinct in unique indexes, so
+     * the guest half relies on guest_token being non-NULL and user_id being
+     * NULL; the two never collide because they are separate unique keys.
+     */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS cart_items (
+        id {$autoInc},
+        user_id INTEGER NULL,
+        guest_token VARCHAR(64) NULL,
+        product_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (user_id, product_id),
+        UNIQUE (guest_token, product_id)
     )");
 
     // Seed products if empty

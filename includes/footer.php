@@ -1,12 +1,10 @@
   </main>
-
   <!-- ========================================== -->
   <!-- 1. PRE-FOOTER (Perks & VIP Community Club) -->
   <!-- ========================================== -->
   <section class="pre-footer" aria-labelledby="pre-footer-heading">
     <div class="pre-footer__inner">
       <h2 id="pre-footer-heading" class="sr-only">Store Advantages and Member Club</h2>
-
       <!-- Perks Grid -->
       <div class="pre-footer__perks-grid">
         <div class="pre-footer-card">
@@ -18,7 +16,6 @@
             <p>On all grocery orders over $60 placed before 2:00 PM</p>
           </div>
         </div>
-
         <div class="pre-footer-card">
           <div class="pre-footer-icon">
             <i data-lucide="leaf" class="icon-md"></i>
@@ -28,7 +25,6 @@
             <p>Hand-picked daily from Australian regional family growers</p>
           </div>
         </div>
-
         <div class="pre-footer-card">
           <div class="pre-footer-icon">
             <i data-lucide="shield-check" class="icon-md"></i>
@@ -38,7 +34,6 @@
             <p>Chilled transit ensures dairy, meat &amp; seafood arrive fresh</p>
           </div>
         </div>
-
         <div class="pre-footer-card">
           <div class="pre-footer-icon">
             <i data-lucide="headphones" class="icon-md"></i>
@@ -49,7 +44,6 @@
           </div>
         </div>
       </div>
-
       <!-- Newsletter Bar -->
       <div class="pre-footer__newsletter">
         <div class="newsletter-copy">
@@ -57,7 +51,7 @@
           <h3 class="newsletter-title">Join the Maxi Fresh Club</h3>
           <p class="newsletter-desc">Get <strong>$10 off</strong> your first order, seasonal farm recipes, and exclusive member-only weekly specials.</p>
         </div>
-        <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('🎉 Welcome! Your $10 voucher code is FRESH10'); this.reset();">
+        <form class="newsletter-form" data-newsletter-form>
           <label class="sr-only" for="pre-newsletter-email">Email Address</label>
           <input id="pre-newsletter-email" type="email" placeholder="Enter your email address" required class="newsletter-input">
           <button type="submit" class="btn-tomato newsletter-btn">
@@ -68,7 +62,6 @@
       </div>
     </div>
   </section>
-
   <!-- ========================================== -->
   <!-- 2. MAIN FOOTER (Navigation, Hours, Contact)-->
   <!-- ========================================== -->
@@ -89,7 +82,6 @@
           <span class="cert-tag"><i data-lucide="check-circle-2" class="icon-xs"></i> Certified Organic &amp; Sustainable Partner</span>
         </div>
       </div>
-
       <!-- Col 2: Departments -->
       <div class="footer-col">
         <h4 class="footer-heading">Market Departments</h4>
@@ -102,7 +94,6 @@
           <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🧃</span> Cold Drinks &amp; Pantry</a></li>
         </ul>
       </div>
-
       <!-- Col 3: Customer Care -->
       <div class="footer-col">
         <h4 class="footer-heading">Customer Care</h4>
@@ -116,7 +107,6 @@
           <li><a href="<?= BASE_URL ?>/delivery_terms.php"><i data-lucide="truck" class="icon-xs"></i> Delivery Zones &amp; Rates</a></li>
         </ul>
       </div>
-
       <!-- Col 4: Opening & Delivery Hours -->
       <div class="footer-col">
         <h4 class="footer-heading">Opening &amp; Delivery Hours</h4>
@@ -139,7 +129,6 @@
           </div>
         </div>
       </div>
-
       <!-- Col 5: Location & Contact -->
       <div class="footer-col">
         <h4 class="footer-heading">Depot &amp; Contact</h4>
@@ -172,7 +161,6 @@
         </div>
       </div>
     </div>
-
     <!-- ========================================== -->
     <!-- 3. SUB-FOOTER (Copyright, Legal, Payments) -->
     <!-- ========================================== -->
@@ -204,11 +192,12 @@
       </div>
     </div>
   </footer>
-
   <div id="toast" class="toast" aria-live="polite"></div>
-</div>
 
-<script>window.MFF_BASE_URL = <?= json_encode(BASE_URL) ?>;</script>
+</div>
 <script src="<?= BASE_URL ?>/assets/main.js?v=<?= time() ?>"></script>
+<!-- Ambient motion layer. Loaded after main.js and purely additive; see
+     includes/header.php for the matching stylesheet. -->
+<script src="<?= BASE_URL ?>/assets/motion.js?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -1,0 +1,390 @@
+/* motion.css - ambient motion layer for Maxi Fine Foods.
+ *
+ * Loaded AFTER style.css from includes/header.php, so everything here is
+ * purely additive: it adds transitions, keyframes and decorative layers to
+ * selectors that already exist. It never overrides a layout, colour, spacing
+ * or typography value that style.css owns. Deleting the <link> tag restores
+ * the previous, animation-free behaviour exactly.
+ *
+ * Rules applied (UI/UX Pro Max v2.13.0, Animation + GSAP domains):
+ *   motion-consistency      one shared duration/easing token set
+ *   parallax-subtle         pointer/scroll deltas kept small
+ *   parallax-decorative     only decorative background layers react to the
+ *                           pointer - never body copy or form controls
+ *   transform-performance   only transform/opacity animate, so nothing can
+ *                           reflow and CLS stays at 0
+ *   excessive-motion        effects are grouped, not sprinkled everywhere
+ *   stagger-sequence        40ms per item, inside the 30-50ms band
+ *   easing                  deceleration on arrival, acceleration on exit
+ *   exit-faster-than-enter  exits run at ~65% of the enter duration
+ *   opacity-threshold       reveals always settle at opacity 1
+ *   no-blocking-animation   every decorative layer is pointer-events:none
+ *   reduced-motion          fully honoured, including a live OS change
+ *
+ * CSP note: the site sends no 'unsafe-inline' for styles, so every value
+ * motion.js feeds in (pointer position, tilt angle, scroll progress) travels
+ * as a CSS custom property written through the CSSOM, never a style
+ * attribute. Canvas painting is likewise unaffected by CSP.
+ */
+
+/* --------------------------------------------------- shared motion tokens */
+:root {
+  --mff-dur-1: 180ms;   /* micro-feedback: press, hover tint          */
+  --mff-dur-2: 320ms;   /* standard enter: reveals, card lift         */
+  --mff-dur-3: 520ms;   /* ambient: glow settle, tilt return         */
+  --mff-dur-4: 900ms;   /* slow ambient: aurora drift, rail          */
+  --mff-stagger: 40ms;  /* per-item reveal delay (30-50ms band)       */
+
+  --mff-ease-out:  cubic-bezier(.22, .61, .36, 1);   /* arriving        */
+  --mff-ease-in:   cubic-bezier(.55, .06, .68, .19);  /* leaving         */
+  --mff-ease-soft: cubic-bezier(.34, 1.2, .64, 1);    /* gentle overshoot*/
+}
+
+/* ---------------------------------------------- decorative background stage */
+/* One fixed, inert layer sits behind the app shell and holds every
+   background effect. .app-shell keeps z-index 1, so no page content is ever
+   covered or reflowed by anything in here. */
+.mff-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* The cloth is a single <canvas> painted by motion.js: one composited layer
+   instead of hundreds of nodes, so the simulation can never touch layout. */
+.mff-cloth-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--mff-dur-4) var(--mff-ease-out);
+}
+.mff-cloth-canvas.is-live { opacity: 1; }
+
+/* Slowly drifting colour wash in the brand palette. Pure CSS keyframes, so
+   it costs no JS and keeps breathing even when the pointer is parked. */
+.mff-aurora {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: .5;
+  will-change: transform;
+}
+.mff-aurora--a {
+  top: -22vmax; left: -14vmax;
+  background: radial-gradient(circle, rgba(47, 96, 65, .3), transparent 68%);
+  animation: mff-drift-a 26s var(--mff-ease-soft) infinite alternate;
+}
+.mff-aurora--b {
+  top: 18vmax; right: -20vmax;
+  background: radial-gradient(circle, rgba(200, 70, 52, .22), transparent 68%);
+  animation: mff-drift-b 32s var(--mff-ease-soft) infinite alternate;
+}
+.mff-aurora--c {
+  bottom: -26vmax; left: 26vmax;
+  background: radial-gradient(circle, rgba(230, 185, 77, .24), transparent 68%);
+  animation: mff-drift-c 38s var(--mff-ease-soft) infinite alternate;
+}
+
+@keyframes mff-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(7vmax, 5vmax, 0) scale(1.12); }
+}
+@keyframes mff-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to   { transform: translate3d(-6vmax, 7vmax, 0) scale(1); }
+}
+@keyframes mff-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(5vmax, -6vmax, 0) scale(1.14); }
+}
+
+/* Cursor-tracking glow. A single disc moved with translate3d rather than
+   background-position, so following the pointer never repaints the viewport.
+   The disc is oversized and offset by -50% via a negative margin, so the
+   gradient stays centred on the cursor instead of snapping to it. */
+.mff-pointer-glow {
+  position: absolute;
+  top: 0; left: 0;
+  width: 640px;
+  height: 640px;
+  margin: -320px 0 0 -320px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(230, 185, 77, .17) 0%,
+    rgba(200, 70, 52, .08) 40%,
+    transparent 68%);
+  opacity: 0;
+  transform: translate3d(-9999px, -9999px, 0);
+  transition: opacity var(--mff-dur-3) var(--mff-ease-out);
+  will-change: transform;
+}
+.mff-pointer-glow.is-live { opacity: 1; }
+
+/* Keeps the app's own content above the stage without altering any layout
+   value that style.css declares. */
+.app-shell { position: relative; z-index: 1; }
+
+/* ------------------------------------------------------- scroll progress */
+/* A hairline at the very top of the viewport. scaleX only, so it can never
+   cause layout, and it is inert so it cannot swallow a click. */
+.mff-progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 60;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--tomato), var(--gold) 55%, var(--leaf));
+  transform: scaleX(var(--mff-scroll, 0));
+  transform-origin: 0 50%;
+}
+
+/* ---------------------------------------------------- scroll-in reveals */
+/* motion.js adds .mff-reveal to eligible elements and .mff-revealed when they
+   intersect.
+   NOTE: .product-card is deliberately NOT in that list. style.css already
+   parks it at opacity 0 and main.js reveals it via .is-entered, so letting a
+   second system drive opacity/transform on the same node makes the card fight
+   itself. Its hover motion is handled further down instead.
+   With JS disabled no class is ever added, so the page stays fully visible:
+   this is progressive enhancement, never a gate on content. */
+.mff-reveal {
+  opacity: 0;
+  transform:
+    translate3d(var(--mff-rv-x, 0px), var(--mff-rv-y, 18px), 0)
+    scale(var(--mff-rv-s, 1));
+  transition:
+    opacity var(--mff-dur-2) var(--mff-ease-out),
+    transform var(--mff-dur-2) var(--mff-ease-out);
+  transition-delay: var(--mff-reveal-delay, 0ms);
+}
+.mff-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* Directional variants. Varying the axis keeps a long page from feeling like
+   one effect simply repeated. */
+.mff-reveal--left  { --mff-rv-x: -22px; --mff-rv-y: 0px; }
+.mff-reveal--right { --mff-rv-x: 22px;  --mff-rv-y: 0px; }
+.mff-reveal--scale { --mff-rv-s: .94; }
+
+/* --------------------------------------------------- pointer-tracked cards */
+/* Cards lean toward the cursor and carry a highlight that follows it across
+   the face. The angle arrives as --mff-tilt-x / --mff-tilt-y, written by
+   motion.js; perspective and the rotate live here so the JS only ever
+   publishes two numbers per frame. */
+.mff-tilt {
+  transform:
+    perspective(900px)
+    rotateX(var(--mff-tilt-x, 0deg))
+    rotateY(var(--mff-tilt-y, 0deg))
+    translate3d(0, var(--mff-ty, 0px), 0);
+  transition:
+    transform var(--mff-dur-2) var(--mff-ease-out),
+    box-shadow var(--mff-dur-2) var(--mff-ease-out);
+  will-change: transform;
+}
+.mff-tilt.is-settling { transition-duration: var(--mff-dur-3); }
+
+/* A soft highlight that follows the cursor across the card face. Painted as a
+   pseudo-element so it needs no extra DOM node and no inline style. */
+.mff-spot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--mff-dur-2) var(--mff-ease-out);
+  background: radial-gradient(
+    18rem circle at var(--mff-cx, 50%) var(--mff-cy, 50%),
+    rgba(255, 255, 255, .5),
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+.mff-spot:hover::after { opacity: 1; }
+
+/* ------------------------------------------- hover / press micro-motion */
+/* These selectors already declare a transition in style.css; this refines it
+   to named properties and adds a transform, leaving the existing hover colour
+   and active scale intact. */
+.btn-tomato,
+.btn-ink,
+.cart-button,
+.nav-action,
+.role-pill,
+.filter-button,
+.pre-footer-icon,
+.pre-footer-card {
+  transition:
+    transform var(--mff-dur-1) var(--mff-ease-out),
+    background-color var(--mff-dur-1) var(--mff-ease-out),
+    box-shadow var(--mff-dur-1) var(--mff-ease-out),
+    color var(--mff-dur-1) var(--mff-ease-out);
+}
+.btn-tomato:hover,
+.btn-ink:hover,
+.cart-button:hover,
+.role-pill:hover,
+.filter-button:hover,
+.pre-footer-icon:hover { transform: translateY(-2px); }
+
+.btn-tomato:active,
+.btn-ink:active,
+.cart-button:active,
+.nav-action:active,
+.role-pill:active,
+.filter-button:active { transform: scale(.97); }
+
+/* Perk cards get a warmer, slower lift with a matching shadow, so the raised
+   state reads as connected to the pointer rather than as a jump.
+   The vertical lift is NOT set here: these cards are also .mff-tilt targets,
+   so the lift is published by motion.js as --mff-ty. Declaring a transform in
+   both places would make one silently win and kill the other. Only the shadow
+   is a plain CSS hover. */
+.pre-footer-card:hover {
+  box-shadow: 0 17px 34px rgba(25, 55, 39, .14);
+}
+
+/* Product images drift slightly larger inside their own media box, which
+   reads as depth without moving a single layout pixel. The hero is excluded
+   because .hero-slideshow img already runs a Ken Burns zoom of its own. */
+.product-card__media { overflow: hidden; }
+.product-card__media img {
+  transition: transform var(--mff-dur-3) var(--mff-ease-out);
+  will-change: transform;
+}
+.product-card:hover .product-card__media img { transform: scale(1.06); }
+
+/* The catalogue's existing filter already fades cards via .is-hiding; shorten
+   its exit so it lands at roughly 65% of the enter duration. */
+.product-card.is-hiding { transition-duration: var(--mff-dur-1); }
+
+/* A badge lifts and grows slightly when its card is hovered. */
+.product-card__badge--sale {
+  transition: transform var(--mff-dur-2) var(--mff-ease-out);
+}
+.product-card:hover .product-card__badge--sale {
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Nav and footer links grow an underline, so the affordance points at the
+   text the cursor is actually over. */
+.nav-action,
+.footer-links a { position: relative; }
+.nav-action::after,
+.footer-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: .55;
+  transform: scaleX(var(--mff-ul, 0));
+  transform-origin: left center;
+  transition: transform var(--mff-dur-2) var(--mff-ease-out);
+  pointer-events: none;
+}
+.nav-action:hover::after,
+.nav-action:focus-visible::after,
+.footer-links a:hover::after,
+.footer-links a:focus-visible::after { --mff-ul: 1; }
+
+/* Focus rings are never removed, only given a matching radius so the keyboard
+   target stays clearly visible. Accessibility is the top priority. */
+.nav-action:focus-visible,
+.footer-links a:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* The announcement bar gets a slow, low-contrast shimmer so the top of the
+   page is never completely static. transform-only, and it never intercepts a
+   click. */
+.announcement-bar { position: relative; overflow: hidden; }
+.announcement-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 38%,
+    rgba(255, 255, 255, .16) 50%,
+    transparent 62%
+  );
+  transform: translate3d(-100%, 0, 0);
+  animation: mff-shimmer 7s var(--mff-ease-soft) infinite;
+}
+@keyframes mff-shimmer {
+  0%, 62% { transform: translate3d(-100%, 0, 0); }
+  100%    { transform: translate3d(100%, 0, 0); }
+}
+
+/* ---------------------------------------------------- reduced motion */
+/* style.css already neutralises animation/transition timing globally. This
+   block removes the things CSS alone cannot switch off: the stage's permanent
+   paint layer, and the reveal offsets that would otherwise leave a visible gap
+   if the observer never fires. */
+@media (prefers-reduced-motion: reduce) {
+  .mff-stage,
+  .mff-progress { display: none; }
+
+  .mff-reveal,
+  .mff-reveal--left,
+  .mff-reveal--right,
+  .mff-reveal--scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .mff-tilt {
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+  .mff-spot::after { display: none; }
+
+  .product-card__media img,
+  .product-card:hover .product-card__media img { transform: none; }
+
+  .announcement-bar::after { display: none; }
+
+  .btn-tomato:hover,
+  .btn-ink:hover,
+  .cart-button:hover,
+  .role-pill:hover,
+  .filter-button:hover,
+  .pre-footer-icon:hover,
+  .pre-footer-card:hover,
+  .product-card:hover .product-card__badge--sale,
+  .btn-tomato:active,
+  .btn-ink:active,
+  .cart-button:active,
+  .nav-action:active,
+  .role-pill:active,
+  .filter-button:active { transform: none; }
+}
+
+/* Touch devices have no hovering cursor, so the pointer-reactive effects are
+   removed outright. The site looks and behaves identically without them. */
+@media (hover: none), (pointer: coarse) {
+  .mff-pointer-glow,
+  .mff-spot::after { display: none; }
+  .mff-tilt { transform: none !important; will-change: auto; }
+  .product-card:hover .product-card__media img { transform: none; }
+}
