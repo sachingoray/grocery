@@ -75,9 +75,52 @@ foreach (array_slice($history, -12) as $h) {
   }
 }
 $apiMessages[] = array('role' => 'user', 'content' => $message);
-// PART 3/3 — OpenRouter call + clean JSON reply.
+// Offline DB-only fallback: answers from the local product catalogue when
+// the OpenRouter key is missing or the API is unreachable. Never leaks secrets.
+function ai_offline_reply($question) {
+  $text = strtolower(trim($question));
+  // Greetings / small talk.
+  if (preg_match('/^(hi|hii+|hello|hey|yo|good\s?(morning|afternoon|evening)|namaste)\b/', $text)) {
+    return 'Hi! Welcome to Maxi Fine Foods. Ask me about products, prices, ordering, checkout or delivery — for example "Do you sell milk?"';
+  }
+  if (strpos($text, 'thank') !== false) {
+    return 'You are welcome! Anything else I can help you find in the store?';
+  }
+  if (strpos($text, 'who are you') !== false || strpos($text, 'your name') !== false) {
+    return 'I am the Maxi Fine Foods shopping assistant. I can help you find products, check prices and explain ordering and delivery.';
+  }
+  // Store help topics that need no AI call.
+  if (strpos($text, 'deliver') !== false) {
+    return 'We deliver across Sydney. Delivery is free on orders over $50, and orders placed before 2:00 PM qualify for same-day delivery. Cold items travel in temperature-controlled vans. Questions? Call 1800 629 436.';
+  }
+  if (strpos($text, 'payment') !== false || strpos($text, 'pay') !== false || strpos($text, 'checkout') !== false || strpos($text, 'order') !== false) {
+    return 'To order: add items to your cart, go to checkout, enter your delivery details and choose a payment method (cash on delivery, credit card via Stripe, or PayPal). Cart totals include 10% GST. Need help with an order? Call 1800 629 436.';
+  }
+  if (strpos($text, 'hour') !== false || strpos($text, 'open') !== false || strpos($text, 'contact') !== false || strpos($text, 'phone') !== false || strpos($text, 'support') !== false || strpos($text, 'location') !== false || strpos($text, 'address') !== false) {
+    return 'Our depot is at 42 Market Street, Sydney NSW 2000. Support hotline: 1800 629 436 (toll-free). Store hours: Mon–Sat 7:00 AM – 9:00 PM, Sun & holidays 8:00 AM – 7:00 PM. Same-day cutoff: 2:00 PM.';
+  }
+  // Product questions answered from the live catalogue via the safe lookup.
+  $isProductQ = (bool)preg_match('/\b(milk|bread|egg|cheese|butter|yogurt|fruit|vegetable|veggie|meat|chicken|beef|fish|salmon|rice|pasta|flour|sugar|salt|oil|coffee|tea|juice|water|snack|chocolate|cake|apple|banana|orange|avocado|strawberr|potato|tomato|onion|carrot|sell|have|price|cost|much|product|stock|available|show|category|dairy|bakery|produce|frozen|pantry|beverage)\b/', $text);
+  if ($isProductQ || strlen($text) >= 3) {
+    $ctx = ai_product_context($question);
+    if (strpos($ctx, 'no matches') !== false || strpos($ctx, 'unavailable') !== false) {
+      return 'I could not find that in our current catalogue. Please try a different word (for example "milk", "bread" or "eggs"), browse the store categories, or call 1800 629 436 for help.';
+    }
+    $lines = explode("\n", $ctx);
+    $items = array();
+    foreach ($lines as $ln) {
+      $ln = trim($ln);
+      if ($ln !== '' && $ln[0] === '-') { $items[] = $ln; }
+    }
+    $items = array_slice($items, 0, 5);
+    if (!empty($items)) {
+      return "Here is what I found in our store:\n" . implode("\n", $items) . "\n\nAdd them to your cart from the shop page. Want prices for anything else?";
+    }
+  }
+  return 'I can help with products, prices, ordering, checkout and delivery. Try asking "Do you sell milk?" or "What products do you have?"';
+}
+// PART 3/3 — OpenRouter call + clean JSON reply (offline fallback if no key).
 $apiKey = mff_openrouter_key();
-if ($apiKey === '') { ai_json(500, array('error' => 'AI not configured yet. Contact support@maxifinefoods.com.au / 1800 629 436.')); }
 $payload = json_encode(array('model' => MFF_AI_MODEL, 'messages' => $apiMessages, 'max_tokens' => 500, 'temperature' => 0.6));
 $ch = curl_init(MFF_AI_ENDPOINT);
 curl_setopt_array($ch, array(
@@ -86,15 +129,23 @@ curl_setopt_array($ch, array(
   CURLOPT_HTTPHEADER => array('Content-Type: application/json', 'Authorization: Bearer ' . $apiKey, 'HTTP-Referer: https://maxifinefoods.com.au', 'X-Title: Maxi Fine Foods AI Assistant'),
 ));
 $response = curl_exec($ch); $curlErr = curl_error($ch); $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
-if ($response === false || $curlErr !== '') { error_log('[mff-ai] curl: ' . $curlErr); ai_json(502, array('error' => 'Cannot reach AI service. Try again in a moment.')); }
+// Fallback helper: saves the offline answer to session history and returns it.
+$useOffline = function ($text) use (&$history, $message) {
+  $history[] = array('role' => 'user', 'content' => mb_substr($message, 0, 1000));
+  $history[] = array('role' => 'assistant', 'content' => mb_substr($text, 0, 2000));
+  $_SESSION['ai_chat_history'] = array_slice($history, -12);
+  ai_json(200, array('reply' => $text, 'mode' => 'offline'));
+};
+// No key yet: answer from the local database instead of erroring out.
+if ($apiKey === '') { $useOffline(ai_offline_reply($message)); }
+if ($response === false || $curlErr !== '') { error_log('[mff-ai] curl: ' . $curlErr); $useOffline(ai_offline_reply($message)); }
 $decoded = json_decode($response, true);
 if ($httpCode < 200 || $httpCode >= 300 || !is_array($decoded)) {
-  if ($httpCode === 401 || $httpCode === 403) { ai_json(500, array('error' => 'AI temporarily unavailable. Try later or contact support.')); }
-  if ($httpCode === 429) { ai_json(502, array('error' => 'AI is busy. Wait a moment and try again.')); }
-  ai_json(502, array('error' => 'AI had a hiccup. Please try again.'));
+  // OpenRouter hiccup (bad key, rate limit, model down): fall back to DB answers.
+  $useOffline(ai_offline_reply($message));
 }
 $reply = trim((string)($decoded['choices'][0]['message']['content'] ?? ''));
-if ($reply === '') { ai_json(502, array('error' => 'No response. Please ask again.')); }
+if ($reply === '') { $useOffline(ai_offline_reply($message)); }
 $history[] = array('role' => 'user', 'content' => mb_substr($message, 0, 1000));
 $history[] = array('role' => 'assistant', 'content' => mb_substr($reply, 0, 2000));
 $_SESSION['ai_chat_history'] = array_slice($history, -12);

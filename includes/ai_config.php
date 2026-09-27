@@ -36,7 +36,7 @@ function mff_openrouter_key(): string
 }
 
 if (!defined('MFF_AI_MODEL')) {
-    define('MFF_AI_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b:free');
+    define('MFF_AI_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b');
 }
 if (!defined('MFF_AI_ENDPOINT')) {
     define('MFF_AI_ENDPOINT', 'https://openrouter.ai/api/v1/chat/completions');
