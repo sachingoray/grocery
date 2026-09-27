@@ -41,6 +41,16 @@ if (!defined('MFF_BUILD')) {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Serve everything explicitly as UTF-8 so emoji render correctly instead of
+// showing as mojibake. The <meta charset="utf-8"> in header.php is only a
+// fallback — the HTTP header wins, and without it proxies/hosts may default
+// to Latin-1. Must run before any output; session.php is included first.
+if (!headers_sent()) {
+    header('Content-Type: text/html; charset=utf-8');
+}
+if (!headers_sent()) {
+    header('Content-Type: text/html; charset=utf-8');
+}
 /**
  * Content-Security-Policy — sent from PHP rather than .htaccess because the
  * site is served by nginx, and from here (not header.php) so it also covers
