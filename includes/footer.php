@@ -193,9 +193,30 @@
     </div>
   </footer>
   <div id="toast" class="toast" aria-live="polite"></div>
+  <!-- AI chatbot widget: floating button + panel. Backend is public/api/chat.php (server-side key). -->
+  <button type="button" id="ai-chat-fab" class="ai-chat-fab" aria-label="Open AI chat assistant" aria-expanded="false" aria-controls="ai-chat-panel">
+    <i data-lucide="message-circle" class="icon-md"></i>
+  </button>
+  <section id="ai-chat-panel" class="ai-chat-panel" aria-label="AI chat assistant" hidden>
+    <div class="ai-chat-head">
+      <span class="ai-chat-avatar" aria-hidden="true">M</span>
+      <div>
+        <div class="ai-chat-title">Maxi Assistant</div>
+        <div class="ai-chat-sub">Ask about products, orders &amp; delivery</div>
+      </div>
+      <button type="button" class="ai-chat-close" data-ai-close aria-label="Close chat">&times;</button>
+    </div>
+    <div class="ai-chat-log" data-ai-log role="log" aria-live="polite" aria-label="Chat messages"></div>
+    <form class="ai-chat-form" data-ai-form>
+      <label class="sr-only" for="ai-chat-input">Type your message</label>
+      <input id="ai-chat-input" class="ai-chat-input" type="text" data-ai-input placeholder="Ask about products..." maxlength="1000" autocomplete="off">
+      <button type="submit" class="ai-chat-send" data-ai-send>Send</button>
+    </form>
+  </section>
 
 </div>
 <script src="<?= BASE_URL ?>/assets/main.js?v=<?= time() ?>"></script>
+<script src="<?= BASE_URL ?>/assets/ai-chat.js?v=<?= time() ?>"></script>
 <!-- Ambient motion layer. Loaded after main.js and purely additive; see
      includes/header.php for the matching stylesheet. -->
 <script src="<?= BASE_URL ?>/assets/motion.js?v=<?= time() ?>"></script>

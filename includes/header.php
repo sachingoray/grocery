@@ -26,6 +26,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css?v=<?= time() ?>">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/ai-chat.css?v=<?= time() ?>">
   <!-- Ambient motion layer (pointer tracking, aurora, scroll reveals). Purely
        additive and loaded last so it can refine, but never fight, style.css.
        Remove this one line to return to the previous, animation-free look. -->
