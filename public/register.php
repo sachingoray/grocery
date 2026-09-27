@@ -47,6 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $pageTitle = 'Register';
 require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
+// Only repopulate after a failed POST — a fresh GET must always render empty
+// fields. Without this guard the browser's autofill + sticky $_POST can make
+// the email look "already filled".
+$isPostback = ($_SERVER['REQUEST_METHOD'] === 'POST') && !empty($errors);
+$oldName = $isPostback ? ($_POST['name'] ?? '') : '';
+$oldEmail = $isPostback ? ($_POST['email'] ?? '') : '';
+$oldContact = $isPostback ? ($_POST['contact_number'] ?? '') : '';
 ?>
 <div class="card-artisan u-201">
   <h1 class="section-title u-139">Create your account</h1>
@@ -60,31 +67,32 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
 <form method="post" action="<?= BASE_URL ?>/register.php" class="form-grid" style="grid-template-columns:1fr;margin-top:1.5rem;">
     <div class="form-field">
       <label for="name">Full name</label>
-      <input id="name" name="name" type="text" required value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" placeholder="e.g. John Doe">
+      <input id="name" name="name" type="text" required autocomplete="name" maxlength="100" value="<?= htmlspecialchars($oldName) ?>" placeholder="e.g. John Doe">
     </div>
     <div class="form-field">
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="e.g. john@example.com">
+      <input id="email" name="email" type="email" required autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="255" value="<?= htmlspecialchars($oldEmail) ?>" placeholder="e.g. john@example.com">
     </div>
     <div class="form-field">
       <label for="contact_number">Contact number</label>
-      <input 
-        id="contact_number" 
-        name="contact_number" 
-        type="tel" 
-        inputmode="numeric" 
+      <input
+        id="contact_number"
+        name="contact_number"
+        type="tel"
+        inputmode="numeric"
         pattern="[0-9\s\+\-\(\)]*"
         placeholder="e.g. 0412 345 678"
+        autocomplete="tel"
         data-input-filter="phone"
-        value="<?= htmlspecialchars($_POST['contact_number'] ?? '') ?>">
+        value="<?= htmlspecialchars($oldContact) ?>">
     </div>
     <div class="form-field">
       <label for="password">Password (min. 8 characters)</label>
-      <input id="password" name="password" type="password" required minlength="8">
+      <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" value="">
     </div>
     <div class="form-field">
       <label for="confirm_password">Confirm Password</label>
-      <input id="confirm_password" name="confirm_password" type="password" required minlength="8">
+      <input id="confirm_password" name="confirm_password" type="password" required minlength="8" autocomplete="new-password" value="">
     </div>
     <button type="submit" class="btn-tomato u-225">Create account</button>
   </form>

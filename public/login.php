@@ -49,6 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Log In';
+// Only repopulate email after a failed POST — a fresh GET must always render empty.
+$loginEmail = ($_SERVER['REQUEST_METHOD'] === 'POST' && $error) ? ($_POST['email'] ?? '') : '';
 require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 <div class="card-artisan u-202">
@@ -56,14 +58,14 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
   <?php if ($error): ?>
     <div class="flash flash--error u-196"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
-  <form method="post" action="<?= BASE_URL ?>/login.php" class="form-grid u-151">
+  <form method="post" action="<?= BASE_URL ?>/login.php" class="form-grid u-151" autocomplete="off">
     <div class="form-field">
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required autocomplete="username">
+      <input id="email" name="email" type="email" required autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="255" placeholder="e.g. john@example.com" value="<?= htmlspecialchars($loginEmail) ?>">
     </div>
     <div class="form-field">
       <label for="password">Password</label>
-      <input id="password" name="password" type="password" required autocomplete="current-password">
+      <input id="password" name="password" type="password" required autocomplete="current-password" value="">
     </div>
     <button type="submit" class="btn-tomato u-225">Log in</button>
   </form>

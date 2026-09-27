@@ -558,6 +558,37 @@ function initGlobalHandlers() {
     if (input && !/[0-9\+\s\-\(\)]/.test(e.key)) e.preventDefault();
   });
 
+  // <input data-autofill-guard> — defeats browser autofill on register/login.
+  // Fields render readonly so password managers skip them; the attribute is
+  // lifted on first focus/input (delegated, no inline handlers for CSP).
+  const unlockAutofillGuard = (input) => {
+    if (input && input.hasAttribute('readonly')) input.removeAttribute('readonly');
+  };
+  document.addEventListener('focusin', (e) => {
+    const input = e.target.closest ? e.target.closest('[data-autofill-guard]') : null;
+    if (input) unlockAutofillGuard(input);
+  });
+  document.addEventListener('input', (e) => {
+    const input = e.target.closest ? e.target.closest('[data-autofill-guard]') : null;
+    if (input) unlockAutofillGuard(input);
+  });
+
+  // Auth pages must always render empty on a fresh GET. Some browsers restore
+  // stale field values on Back/Forward or soft reload, which looks like the
+  // email is "already filled". Resetting register/login forms on load makes
+  // the server value (always empty on GET) the source of truth, while still
+  // keeping values after a failed POST (server re-render with errors).
+  // Runs inline here (not nested DOMContentLoaded) because initGlobalHandlers
+  // itself is already called from a DOMContentLoaded handler.
+  try {
+    const path = (window.location.pathname || '').toLowerCase();
+    if (path.endsWith('/register.php') || path.endsWith('/login.php')) {
+      document.querySelectorAll('form[action*="register.php"], form[action*="login.php"]').forEach((form) => {
+        if (!form.querySelector('.flash--error')) form.reset();
+      });
+    }
+  } catch (e) { /* never block the rest of init */ }
+
   // <form data-newsletter-form> — front-end only sign-up confirmation.
   document.addEventListener('submit', (e) => {
     const form = e.target.closest('[data-newsletter-form]');
