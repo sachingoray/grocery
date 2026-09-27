@@ -12,7 +12,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' | ' : '' ?>Maxi Fine Foods</title>
   <!-- Build marker: confirms which code THIS host is actually serving. If this
@@ -127,7 +127,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_users' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_users.php">Staff &amp; Users</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span class="u-104">
-            ðŸ›¡ï¸ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?> (Admin)
+            🛡 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?> (Admin)
           </span>
           <a class="nav-action u-045" href="<?= BASE_URL ?>/logout.php">Log out</a>
         <?php endif; ?>

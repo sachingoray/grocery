@@ -195,7 +195,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
             <td>
               <?php if ($u['role'] === 'admin'): ?>
                 <span class="u-006">
-                  ðŸ›¡ï¸ Admin
+                  🛡 Admin
                 </span>
               <?php elseif ($u['role'] === 'logistics_manager'): ?>
                 <span class="u-020">
@@ -215,7 +215,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                 </span>
               <?php else: ?>
                 <span class="u-010">
-                  ðŸ›ï¸ Customer
+                  🛍 Customer
                 </span>
               <?php endif; ?>
             </td>
@@ -303,12 +303,12 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <div class="form-field">
         <label for="create_role">Account Role *</label>
         <select id="create_role" name="role" required>
-          <option value="customer">ðŸ›ï¸ Customer (Standard Store User)</option>
+          <option value="customer">🛍 Customer (Standard Store User)</option>
           <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
           <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
           <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
           <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
-          <option value="admin">ðŸ›¡ï¸ System Administrator (Full System Control)</option>
+          <option value="admin">🛡 System Administrator (Full System Control)</option>
         </select>
       </div>
       <div class="form-field">
@@ -357,12 +357,12 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
       <div class="form-field">
         <label for="edit_role">Account Role *</label>
         <select id="edit_role" name="role" required>
-          <option value="customer">ðŸ›ï¸ Customer (Standard Store User)</option>
+          <option value="customer">🛍 Customer (Standard Store User)</option>
           <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
           <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
           <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
           <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
-          <option value="admin">ðŸ›¡ï¸ System Administrator (Full System Control)</option>
+          <option value="admin">🛡 System Administrator (Full System Control)</option>
         </select>
       </div>
       <div class="form-field u-016">

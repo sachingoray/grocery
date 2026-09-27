@@ -184,7 +184,7 @@
             <span class="pay-badge" title="Visa">💳 Visa</span>
             <span class="pay-badge" title="Mastercard">💳 Mastercard</span>
             <span class="pay-badge" title="American Express">💳 AMEX</span>
-            <span class="pay-badge" title="PayPal">🅿️ PayPal</span>
+            <span class="pay-badge" title="PayPal">🅿 PayPal</span>
             <span class="pay-badge" title="Apple Pay">🍎 Apple Pay</span>
             <span class="pay-badge" title="Cash on Delivery">💵 Cash on Delivery</span>
           </div>
