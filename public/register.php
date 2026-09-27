@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'role' => $role,
                     'contact' => $contactNumber,
                 ]);
-                mff_set_flash('success', 'Account created successfully â€” please log in.');
+                mff_set_flash('success', 'Account created successfully — please log in.');
                 header('Location: ' . BASE_URL . '/login.php');
                 exit;
             }

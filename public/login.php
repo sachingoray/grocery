@@ -74,10 +74,10 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     <p class="u-100">Role Testing Credentials (All Roles Seeded)</p>
     <div class="u-081">
       <div>ðŸ›¡ï¸ <strong>Admin:</strong><br><code>admin@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>admin123</code></div>
-      <div>ðŸšš <strong>Logistics Mgr:</strong><br><code>logistics@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>logistics123</code></div>
-      <div>ðŸ“¦ <strong>Inventory Mgr:</strong><br><code>inventory@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>inventory123</code></div>
-      <div>ðŸŽ§ <strong>Customer Support:</strong><br><code>support@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>support123</code></div>
-      <div>ðŸšš <strong>Delivery Driver:</strong><br><code>driver@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>driver123</code></div>
+      <div>🚚 <strong>Logistics Mgr:</strong><br><code>logistics@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>logistics123</code></div>
+      <div>📦 <strong>Inventory Mgr:</strong><br><code>inventory@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>inventory123</code></div>
+      <div>🎧 <strong>Customer Support:</strong><br><code>support@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>support123</code></div>
+      <div>🚚 <strong>Delivery Driver:</strong><br><code>driver@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>driver123</code></div>
       <div>ðŸ›ï¸ <strong>Customer:</strong><br><code>customer@maxifinefoods.com.au</code><br><span class="u-033">Pass:</span> <code>customer123</code></div>
     </div>
   </div>

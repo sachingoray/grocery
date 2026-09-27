@@ -77,7 +77,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
           <a class="nav-action <?= ($activeNav ?? '') === 'shop' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/index.php">Shop</a>
           <a class="nav-action <?= ($activeNav ?? '') === 'orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/my_orders.php">My Orders</a>
           <span class="u-105">
-            ðŸ‘¤ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Customer') ?>
+            👤 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Customer') ?>
           </span>
           <a class="cart-button" href="<?= BASE_URL ?>/cart.php">
             <i data-lucide="shopping-bag" class="icon-sm"></i>
@@ -91,7 +91,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
             <i data-lucide="truck" class="icon-sm u-085"></i>Delivery Queue
           </a>
           <span class="u-110">
-            ðŸšš <?= htmlspecialchars($_SESSION['user_name'] ?? 'Driver') ?> (Delivery)
+            🚚 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Driver') ?> (Delivery)
           </span>
           <a class="nav-action u-045" href="<?= BASE_URL ?>/logout.php">Log out</a>
         <?php elseif ($currentRole === 'logistics_manager'): ?>
@@ -100,7 +100,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Dispatch Orders</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span class="u-109">
-            ðŸšš <?= htmlspecialchars($_SESSION['user_name'] ?? 'Logistics Mgr') ?> (Fleet Mgr)
+            🚚 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Logistics Mgr') ?> (Fleet Mgr)
           </span>
           <a class="nav-action u-045" href="<?= BASE_URL ?>/logout.php">Log out</a>
         <?php elseif ($currentRole === 'inventory_manager'): ?>
@@ -108,7 +108,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_products' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_products.php">Product Catalog</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span class="u-106">
-            ðŸ“¦ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Inventory Mgr') ?> (Product Mgr)
+            📦 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Inventory Mgr') ?> (Product Mgr)
           </span>
           <a class="nav-action u-045" href="<?= BASE_URL ?>/logout.php">Log out</a>
         <?php elseif ($currentRole === 'support_staff'): ?>
@@ -116,7 +116,7 @@ $cartTotal = $cartCount > 0 ? mff_money(cart_contents()['total']) : '';
           <a class="nav-action <?= ($activeNav ?? '') === 'admin_orders' ? 'nav-action--active' : '' ?>" href="<?= BASE_URL ?>/admin/manage_orders.php">Customer Orders</a>
           <a class="nav-action" href="<?= BASE_URL ?>/index.php">Storefront</a>
           <span class="u-108">
-            ðŸŽ§ <?= htmlspecialchars($_SESSION['user_name'] ?? 'Support') ?> (Support Staff)
+            🎧 <?= htmlspecialchars($_SESSION['user_name'] ?? 'Support') ?> (Support Staff)
           </span>
           <a class="nav-action u-045" href="<?= BASE_URL ?>/logout.php">Log out</a>
         <?php elseif ($currentRole === 'admin'): ?>

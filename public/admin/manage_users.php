@@ -185,7 +185,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                   <div class="u-147">
                     <?= htmlspecialchars($u['name']) ?>
                     <?php if ($isRecent): ?>
-                      <span class="u-025">âœ¨ New</span>
+                      <span class="u-025">✨ New</span>
                     <?php endif; ?>
                   </div>
                   <div class="u-107"><?= htmlspecialchars($u['email']) ?></div>
@@ -199,19 +199,19 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                 </span>
               <?php elseif ($u['role'] === 'logistics_manager'): ?>
                 <span class="u-020">
-                  ðŸšš Fleet Mgr
+                  🚚 Fleet Mgr
                 </span>
               <?php elseif ($u['role'] === 'inventory_manager'): ?>
                 <span class="u-008">
-                  ðŸ“¦ Product Mgr
+                  📦 Product Mgr
                 </span>
               <?php elseif ($u['role'] === 'support_staff'): ?>
                 <span class="u-013">
-                  ðŸŽ§ Support Staff
+                  🎧 Support Staff
                 </span>
               <?php elseif ($u['role'] === 'delivery'): ?>
                 <span class="u-022">
-                  ðŸšš Driver
+                  🚚 Driver
                 </span>
               <?php else: ?>
                 <span class="u-010">
@@ -225,7 +225,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                   <?= htmlspecialchars($u['contact_number']) ?>
                 </a>
               <?php else: ?>
-                <span class="u-034">â€”</span>
+                <span class="u-034">—</span>
               <?php endif; ?>
             </td>
             <td><strong><?= (int) $u['order_count'] ?></strong> orders</td>
@@ -304,10 +304,10 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
         <label for="create_role">Account Role *</label>
         <select id="create_role" name="role" required>
           <option value="customer">ðŸ›ï¸ Customer (Standard Store User)</option>
-          <option value="delivery">ðŸšš Delivery Driver (Delivery App Access)</option>
-          <option value="support_staff">ðŸŽ§ Customer Service Staff (Order &amp; Inquiries)</option>
-          <option value="inventory_manager">ðŸ“¦ Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
-          <option value="logistics_manager">ðŸšš Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
+          <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
+          <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
+          <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
+          <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
           <option value="admin">ðŸ›¡ï¸ System Administrator (Full System Control)</option>
         </select>
       </div>
@@ -358,10 +358,10 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
         <label for="edit_role">Account Role *</label>
         <select id="edit_role" name="role" required>
           <option value="customer">ðŸ›ï¸ Customer (Standard Store User)</option>
-          <option value="delivery">ðŸšš Delivery Driver (Delivery App Access)</option>
-          <option value="support_staff">ðŸŽ§ Customer Service Staff (Order &amp; Inquiries)</option>
-          <option value="inventory_manager">ðŸ“¦ Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
-          <option value="logistics_manager">ðŸšš Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
+          <option value="delivery">🚚 Delivery Driver (Delivery App Access)</option>
+          <option value="support_staff">🎧 Customer Service Staff (Order &amp; Inquiries)</option>
+          <option value="inventory_manager">📦 Product &amp; Inventory Manager (Catalog &amp; Stock)</option>
+          <option value="logistics_manager">🚚 Fleet &amp; Logistics Manager (Driver &amp; Delivery)</option>
           <option value="admin">ðŸ›¡ï¸ System Administrator (Full System Control)</option>
         </select>
       </div>

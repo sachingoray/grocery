@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save'
         $stmt->execute(['status' => $status, 'driver' => $driver, 'id' => $orderId]);
         mff_set_flash('success', 'Order #MFF-' . $orderId . ' updated.');
     } else {
-        mff_set_flash('info', 'No database connected â€” change not persisted (demo mode).');
+        mff_set_flash('info', 'No database connected — change not persisted (demo mode).');
     }
     header('Location: ' . BASE_URL . '/admin/manage_orders.php');
     exit;

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         exit;
     }
-    // Regular form post (e.g. "Add to cart" button on the catalog) â€” redirect back.
+    // Regular form post (e.g. "Add to cart" button on the catalog) — redirect back.
     mff_set_flash('success', 'Cart updated.');
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? BASE_URL . '/cart.php'));
     exit;

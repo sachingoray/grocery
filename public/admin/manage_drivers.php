@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } elseif (empty($errors)) {
-            mff_set_flash('info', 'No database connected â€” demo mode.');
+            mff_set_flash('info', 'No database connected — demo mode.');
             header('Location: ' . BASE_URL . '/admin/manage_drivers.php');
             exit;
         }
@@ -128,7 +128,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
     </div>
     <div class="form-field">
       <label for="driver-password">Temporary password (min. 6 chars)</label>
-      <input id="driver-password" name="password" required type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+      <input id="driver-password" name="password" required type="password" placeholder="••••••••">
     </div>
     <div class="form-field--full u-176">
       <button type="submit" class="btn-tomato">Create driver account</button>
@@ -136,7 +136,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
   </form>
 </div>
 <!-- Active Driver Fleet Table -->
-<h2 class="u-133">ðŸšš Registered delivery drivers (<?= count($drivers) ?>)</h2>
+<h2 class="u-133">🚚 Registered delivery drivers (<?= count($drivers) ?>)</h2>
 <div class="data-table-wrap u-177">
   <table class="data-table">
     <caption class="sr-only">Delivery drivers roster</caption>
@@ -157,7 +157,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
         <?php foreach ($drivers as $driver): ?>
           <tr>
             <td class="u-144">
-              ðŸšš <?= htmlspecialchars($driver['name']) ?>
+              🚚 <?= htmlspecialchars($driver['name']) ?>
             </td>
             <td><?= htmlspecialchars($driver['email']) ?></td>
             <td>
@@ -166,7 +166,7 @@ require file_exists(__DIR__ . '/../../includes/header.php') ? __DIR__ . '/../../
                   <?= htmlspecialchars($driver['contact_number']) ?>
                 </a>
               <?php else: ?>
-                <span class="u-033">â€”</span>
+                <span class="u-033">—</span>
               <?php endif; ?>
             </td>
             <td>

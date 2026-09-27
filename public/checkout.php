@@ -4,7 +4,7 @@ $cart = cart_contents();
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($cart['items'])) {
-        mff_set_flash('error', 'Your cart is empty â€” add something before checking out.');
+        mff_set_flash('error', 'Your cart is empty — add something before checking out.');
         header('Location: ' . BASE_URL . '/index.php');
         exit;
     }
@@ -108,11 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (PDOException $e) {
                     $pdo->rollBack();
                     error_log('[mff] order insert failed: ' . $e->getMessage());
-                    $errors[] = 'We could not place your order right now â€” please try again.';
+                    $errors[] = 'We could not place your order right now — please try again.';
                 }
             }
             if (empty($errors)) {
-                // No live DB (or insert succeeded) â€” either way, stash a session
+                // No live DB (or insert succeeded) — either way, stash a session
                 // receipt so order_confirmation.php has something to show even
                 // in fallback mode.
                 $_SESSION['last_order'] = [
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 if (empty($cart['items']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    mff_set_flash('error', 'Your cart is empty â€” add something before checking out.');
+    mff_set_flash('error', 'Your cart is empty — add something before checking out.');
     header('Location: ' . BASE_URL . '/index.php');
     exit;
 }

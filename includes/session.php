@@ -1,11 +1,11 @@
 <?php
 /**
- * session.php â€” role/auth helpers, cart state, and flash messages.
+ * session.php — role/auth helpers, cart state, and flash messages.
  * Include this before any output on every page (it starts the session).
  */
 require_once __DIR__ . '/db.php';
 /**
- * BASE_URL â€” the URL path prefix under which /public is being served.
+ * BASE_URL — the URL path prefix under which /public is being served.
  * Computed automatically from the request, so the app works whether it's
  * accessed at the domain root or nested under folders like
  * /capstone/maxi-fine-foods-php/public. All links/forms/assets should be
@@ -27,7 +27,7 @@ if (!defined('BASE_URL')) {
     }
 }
 /**
- * MFF_BUILD â€” identifies which build a server is running.
+ * MFF_BUILD — identifies which build a server is running.
  *
  * Rendered into a <meta name="mff-build"> tag by header.php, so you can confirm
  * at a glance whether a given host (local, staging or the live cloud server) is
@@ -42,7 +42,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 /**
- * Content-Security-Policy â€” sent from PHP rather than .htaccess because the
+ * Content-Security-Policy — sent from PHP rather than .htaccess because the
  * site is served by nginx, and from here (not header.php) so it also covers
  * pages that render without the site chrome.
  *
@@ -50,7 +50,7 @@ if (session_status() === PHP_SESSION_NONE) {
  * is listed explicitly, and there is no 'unsafe-inline', 'unsafe-eval',
  * wildcard or data: source anywhere in it. Supporting the strict policy means
  * the front end carries no inline <script> blocks, no on* event handlers and no
- * class="u-001" attributes â€” those live in assets/main.js, assets/style.css and the
+ * class="u-001" attributes — those live in assets/main.js, assets/style.css and the
  * page-specific assets/*.js files instead.
  *
  * Resource inventory this policy was built from:

@@ -1,4 +1,4 @@
-// main.js â€” Maxi Fine Foods front end helpers.
+// main.js — Maxi Fine Foods front end helpers.
 // Talks to cart.php over fetch() so quantity changes don't need a full reload.
 
 // BASE_URL is published by PHP on <body data-base-url="..."> (see
@@ -86,8 +86,8 @@ function syncCartUI(data) {
 /**
  * POST cart data, retrying once if the request dies at the transport layer.
  * A browser never auto-retries a POST (it is not idempotent), so a pooled
- * keep-alive socket that the server has already closed â€” the usual reason for
- * a bogus "Failed to fetch" on shared hosting â€” would otherwise swallow the
+ * keep-alive socket that the server has already closed — the usual reason for
+ * a bogus "Failed to fetch" on shared hosting — would otherwise swallow the
  * click and surface as a fake "check your connection" error.
  */
 async function postCartForm(url, formData) {
@@ -124,7 +124,7 @@ function initQtySteppers() {
         const res = await postCartForm(withAjaxFlag((window.MFF_BASE_URL || '') + '/cart.php'), formData);
         const data = await readJson(res);
         if (data === null) {
-          // Server answered with a page instead of JSON â€” resync so the UI matches the real cart.
+          // Server answered with a page instead of JSON — resync so the UI matches the real cart.
           if (res.ok || res.redirected) {
             window.location.reload();
           } else {
@@ -168,7 +168,7 @@ function initQtySteppers() {
           showToast(data.error || 'Could not update cart.');
         }
       } catch (err) {
-        showToast('Could not update cart â€” please check your connection.');
+        showToast('Could not update cart — please check your connection.');
       }
     };
 
@@ -375,14 +375,14 @@ function initAddToCart() {
         // The POST failed twice at the transport layer (socket closed, request
         // blocked, ...). Never leave the click dead: re-submit the form the
         // normal way so the item still reaches cart.php, which is the no-JS
-        // path â€” the server saves the item and redirects back to this page
+        // path — the server saves the item and redirects back to this page
         // with the badge already updated.
         if (navigator.onLine !== false) {
-          showToast('Connection hiccup â€” saving your itemâ€¦');
+          showToast('Connection hiccup — saving your item…');
           form.submit();
           return;
         }
-        showToast('You appear to be offline â€” reconnect and try again.');
+        showToast('You appear to be offline — reconnect and try again.');
       } finally {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
@@ -539,13 +539,13 @@ function initHeroSlideshow() {
  * is what lets the CSP run without 'unsafe-inline'.
  */
 function initGlobalHandlers() {
-  // <form data-confirm="..."> â€” ask before submitting (delete/remove actions).
+  // <form data-confirm="..."> — ask before submitting (delete/remove actions).
   document.addEventListener('submit', (e) => {
     const form = e.target.closest('form[data-confirm]');
     if (form && !window.confirm(form.dataset.confirm)) e.preventDefault();
   });
 
-  // <input data-input-filter="phone"> â€” keep contact numbers to digits.
+  // <input data-input-filter="phone"> — keep contact numbers to digits.
   const phoneFilter = (input) => input.value.replace(/[^0-9\+\s\-()]/g, '');
   document.addEventListener('input', (e) => {
     const input = e.target.closest('[data-input-filter="phone"]');
@@ -558,12 +558,12 @@ function initGlobalHandlers() {
     if (input && !/[0-9\+\s\-\(\)]/.test(e.key)) e.preventDefault();
   });
 
-  // <form data-newsletter-form> â€” front-end only sign-up confirmation.
+  // <form data-newsletter-form> — front-end only sign-up confirmation.
   document.addEventListener('submit', (e) => {
     const form = e.target.closest('[data-newsletter-form]');
     if (!form) return;
     e.preventDefault();
-    showToast('ðŸŽ‰ Welcome! Your $10 voucher code is FRESH10');
+    showToast('🎉 Welcome! Your $10 voucher code is FRESH10');
     form.reset();
   });
 }
