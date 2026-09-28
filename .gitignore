@@ -7,3 +7,6 @@ includes/data/
 .env
 .DS_Store
 Thumbs.db
+deploy/deploy.env
+deploy/last_deploy.txt
+
