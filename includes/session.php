@@ -36,7 +36,7 @@ if (!defined('BASE_URL')) {
  * code, whatever the local files look like.
  */
 if (!defined('MFF_BUILD')) {
-    define('MFF_BUILD', '2026-09-28-auth-checkout-parse-fix');
+    define('MFF_BUILD', '2026-09-28-product-image-fix');
 }
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -70,7 +70,9 @@ if (!headers_sent()) {
  *             block, which would have forced 'unsafe-inline' into style-src.
  *   styles  : local assets + fonts.googleapis.com (stylesheet only).
  *   fonts   : fonts.gstatic.com (served by Google Fonts).
- *   images  : local assets + images.unsplash.com (catalog photography seeds).
+ *   images  : local assets + images.unsplash.com / images.pexels.com (catalog
+ *             photography — Unsplash for the original seed, Pexels for the
+ *             product images corrected on 2026-09-28).
  *   xhr     : same origin only (cart.php ?ajax=1), so connect-src 'self'.
  *   forms   : same origin, plus https://checkout.stripe.com. checkout.php
  *             answers a card payment with a 303 redirect to the Stripe-hosted
@@ -92,7 +94,7 @@ function mff_send_security_headers(): void
         "script-src-attr 'none'",
         "style-src 'self' https://fonts.googleapis.com",
         "style-src-attr 'none'",
-        "img-src 'self' https://images.unsplash.com",
+        "img-src 'self' https://images.unsplash.com https://images.pexels.com",
         "font-src 'self' https://fonts.gstatic.com",
         "connect-src 'self'",
         // checkout.stripe.com is required: checkout.php redirects card payments

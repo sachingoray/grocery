@@ -66,7 +66,7 @@ function mff_products_fallback(): array
             'category' => 'Produce', 'badge' => 'Farm Fresh', 'price' => 2.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 30, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1556881286-fc6915169721?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/18441983/pexels-photo-18441983.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Firm, crunchy iceberg lettuce perfect for fresh garden salads.',
         ],
         [
@@ -90,7 +90,7 @@ function mff_products_fallback(): array
             'category' => 'Produce', 'badge' => 'Farm Fresh', 'price' => 3.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 22, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1598170845058-32b9d6a5c317?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/4992944/pexels-photo-4992944.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Sweet, vibrant bunch of Dutch carrots with fresh green tops.',
         ],
         [
@@ -114,7 +114,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Special Deal', 'price' => 5.9,
             'original_price' => 7.5, 'is_special' => 1,
             'stock' => 18, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1585478259715-4d3a5d7f3b8b?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/33972459/pexels-photo-33972459.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Slow-fermented 48-hour sourdough baked fresh each morning.',
         ],
         [
@@ -130,7 +130,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Stone Baked', 'price' => 5.2,
             'original_price' => null, 'is_special' => 0,
             'stock' => 16, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/5425885/pexels-photo-5425885.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Crusty Italian ciabatta loaf with an airy, chewy crumb.',
         ],
         [
@@ -146,7 +146,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Golden Glaze', 'price' => 4.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 25, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/8859762/pexels-photo-8859762.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Enriched, slightly sweet golden brioche buns, perfect for burgers.',
         ],
         [
@@ -154,7 +154,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => '20% OFF', 'price' => 6.2,
             'original_price' => 7.8, 'is_special' => 1,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/20009435/pexels-photo-20009435.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Flaky French pastry filled with rich Belgian dark chocolate batons.',
         ],
         [
@@ -162,7 +162,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Freshly Baked', 'price' => 5.9,
             'original_price' => null, 'is_special' => 0,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/7935281/pexels-photo-7935281.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Moist vanilla muffins loaded with bursting blueberries.',
         ],
         [
@@ -170,7 +170,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Artisan', 'price' => 3.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 25, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/28636290/pexels-photo-28636290.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Crisp crust and tender inside, baked fresh twice daily.',
         ],
         [
@@ -178,7 +178,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Boiled & Baked', 'price' => 4.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 24, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1585478259715-4d3a5d7f3b8b?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/3957500/pexels-photo-3957500.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Chewy, authentic New York style boiled bagels.',
         ],
         [
@@ -186,7 +186,7 @@ function mff_products_fallback(): array
             'category' => 'Bakery', 'badge' => 'Extra Virgin Olive Oil', 'price' => 6.2,
             'original_price' => null, 'is_special' => 0,
             'stock' => 15, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/18453904/pexels-photo-18453904.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Thick Italian focaccia dimpled with fresh rosemary and olive oil.',
         ],
         [
@@ -210,7 +210,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => 'Prime Cut', 'price' => 16.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 14, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/29095929/pexels-photo-29095929.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Well-marbled Angus beef ribeye, tender and rich in flavour.',
         ],
         [
@@ -218,7 +218,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => '90% Lean', 'price' => 8.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 35, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/128401/pexels-photo-128401.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Quality Australian ground beef for bolognese and tacos.',
         ],
         [
@@ -234,7 +234,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => 'Tender Cut', 'price' => 9.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/7333266/pexels-photo-7333266.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Succulent pork chops with rind for crispy crackling.',
         ],
         [
@@ -242,7 +242,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => 'Gourmet Lamb', 'price' => 22.0,
             'original_price' => null, 'is_special' => 0,
             'stock' => 15, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/4411696/pexels-photo-4411696.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'French-trimmed tender lamb cutlets, tender and flavorful.',
         ],
         [
@@ -258,7 +258,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => 'Roast Ready', 'price' => 12.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 18, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/7900353/pexels-photo-7900353.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Fresh whole free-range chicken ready for Sunday family roasts.',
         ],
         [
@@ -266,7 +266,7 @@ function mff_products_fallback(): array
             'category' => 'Meat & Seafood', 'badge' => 'Naturally Smoked', 'price' => 5.9,
             'original_price' => null, 'is_special' => 0,
             'stock' => 30, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/4110373/pexels-photo-4110373.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Crisp-frying rindless streaky bacon cured with natural woodsmoke.',
         ],
         [
@@ -314,7 +314,7 @@ function mff_products_fallback(): array
             'category' => 'Dairy', 'badge' => '35% Milk Fat', 'price' => 3.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 26, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/6641182/pexels-photo-6641182.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Rich dollop cream that whips into billowy peaks easily.',
         ],
         [
@@ -330,7 +330,7 @@ function mff_products_fallback(): array
             'category' => 'Dairy', 'badge' => 'Artisan Italian', 'price' => 5.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/5589028/pexels-photo-5589028.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Soft, milky fresh mozzarella ball soaked in brine for pizza & caprese.',
         ],
         [
@@ -338,7 +338,7 @@ function mff_products_fallback(): array
             'category' => 'Dairy', 'badge' => 'DOP Certified', 'price' => 9.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/34037769/pexels-photo-34037769.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => '24-month matured authentic Italian parmesan cheese.',
         ],
         [
@@ -346,7 +346,7 @@ function mff_products_fallback(): array
             'category' => 'Dairy', 'badge' => 'Froths Perfectly', 'price' => 3.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 40, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/29906263/pexels-photo-29906263.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Velvety plant milk designed for micro-foaming specialty coffee.',
         ],
         [
@@ -370,7 +370,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => '25% OFF', 'price' => 5.2,
             'original_price' => 6.9, 'is_special' => 1,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/12433988/pexels-photo-12433988.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Cold-pressed apple, cucumber, celery, kale, lemon, and mint.',
         ],
         [
@@ -378,7 +378,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => 'Spring Sourced', 'price' => 2.5,
             'original_price' => null, 'is_special' => 0,
             'stock' => 45, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/12987478/pexels-photo-12987478.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Crisp effervescent mineral water from natural underground springs.',
         ],
         [
@@ -386,7 +386,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => 'Naturally Brewed', 'price' => 7.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 22, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/8234585/pexels-photo-8234585.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Traditional fermented ginger beer with spicy fiery kick.',
         ],
         [
@@ -394,7 +394,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => 'Live Probiotics', 'price' => 3.9,
             'original_price' => null, 'is_special' => 0,
             'stock' => 28, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/38466020/pexels-photo-38466020.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Sparkling fermented green tea with fresh pressed ginger juice.',
         ],
         [
@@ -402,7 +402,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => 'Naturally Hydrating', 'price' => 4.8,
             'original_price' => null, 'is_special' => 0,
             'stock' => 32, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/15020644/pexels-photo-15020644.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Hydrating young green coconut water rich in electrolytes.',
         ],
         [
@@ -426,7 +426,7 @@ function mff_products_fallback(): array
             'category' => 'Beverages', 'badge' => 'Save $3.00', 'price' => 8.9,
             'original_price' => 11.9, 'is_special' => 1,
             'stock' => 20, 'low_stock_threshold' => 10,
-            'image_url' => 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&q=80',
+            'image_url' => 'https://images.pexels.com/photos/17052506/pexels-photo-17052506.jpeg?auto=compress&cs=tinysrgb&w=600',
             'description' => 'Amber rich Canadian maple syrup tapped from sugar maples.',
         ],
     ];
