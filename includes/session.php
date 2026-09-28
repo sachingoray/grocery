@@ -36,7 +36,7 @@ if (!defined('BASE_URL')) {
  * code, whatever the local files look like.
  */
 if (!defined('MFF_BUILD')) {
-    define('MFF_BUILD', '2026-09-26-cart-isolation');
+    define('MFF_BUILD', '2026-09-28-auth-checkout-parse-fix');
 }
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -106,6 +106,17 @@ function mff_send_security_headers(): void
         "worker-src 'none'",
     ];
     header('Content-Security-Policy: ' . implode('; ', $policy));
+
+    // HTTP Strict Transport Security (HSTS)
+    // Send only over HTTPS to instruct browsers to strictly use HTTPS for future requests.
+    // Notice: includeSubDomains and preload are intentionally omitted until domain-wide compliance is verified.
+    $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+        || (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+
+    if ($isHttps) {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
 }
 mff_send_security_headers();
 /**

@@ -1,4 +1,11 @@
 <?php
+/**
+ * chat.php — API endpoint for the site's chat/support widget.
+ * Date: 27/09/2026
+ * Purpose: Receives AJAX requests from the front end and returns a JSON
+ * response for the chat assistant.
+ */
+
 // PART 1/3 — header, validation, rate limit.
 // Works both in repo layout (public/api/chat.php → ../../includes) and
 // flattened docroot layout (api/chat.php → ../includes).

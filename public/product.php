@@ -1,4 +1,11 @@
 <?php
+/**
+ * product.php — Single product detail page.
+ * Date: 27/09/2026
+ * Purpose: Shows full details for one product (by ?id=) and provides an
+ * Add to Cart form with a quantity selector.
+ */
+
 require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 $productId = (int) ($_GET['id'] ?? 0);
 $product = mff_get_product($productId);

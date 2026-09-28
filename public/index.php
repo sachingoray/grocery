@@ -1,4 +1,11 @@
 <?php
+/**
+ * index.php — Product catalogue / shop front page.
+ * Date: 27/09/2026
+ * Purpose: Lists all products with category filters, search, and per-product
+ * Add to Cart forms; shows live quantity-in-cart state per product.
+ */
+
 require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 $pageTitle = 'Shop';
 $activeNav = 'shop';

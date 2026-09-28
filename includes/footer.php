@@ -1,6 +1,11 @@
   </main>
   <!-- ========================================== -->
-  <!-- 1. PRE-FOOTER (Perks & VIP Community Club) -->
+  <!--
+  footer.php — Shared site footer, pre-footer perks section, and closing markup.
+  Date: 27/09/2026
+  Purpose: Renders footer links, VIP perks section, and closes <main>/<body>
+  tags opened by header.php, included on every public-facing page.
+-->
   <!-- ========================================== -->
   <section class="pre-footer" aria-labelledby="pre-footer-heading">
     <div class="pre-footer__inner">

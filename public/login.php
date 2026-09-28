@@ -1,4 +1,11 @@
 <?php
+/**
+ * login.php — Customer/staff login page.
+ * Date: 27/09/2026
+ * Purpose: Authenticates a user against the users table, sets session role,
+ * and merges any guest cart into the authenticated user's cart on success.
+ */
+
 require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -1,4 +1,12 @@
 <?php
+/**
+ * cart.php — Shopping cart view and mutation endpoint.
+ * Author: Sachin Shrestha
+ * Date: 27/09/2026
+ * Purpose: Displays current cart contents and handles add/update/remove
+ * actions posted from index.php, product.php, and this page's own forms.
+ */
+
 require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 /* ------------------------------------------------------ handle mutations */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

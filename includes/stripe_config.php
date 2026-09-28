@@ -1,4 +1,11 @@
 <?php
+/**
+ * stripe_config.php — Stripe SDK bootstrap and API key configuration.
+ * Author: Sachin Shrestha
+ * Date: 27/09/2026
+ * Purpose: Loads the stripe/stripe-php SDK via Composer autoload and sets
+ * the Stripe secret key (from env var or local override) for checkout.php.
+ */
 
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';

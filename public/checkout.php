@@ -1,4 +1,12 @@
 <?php
+/**
+ * checkout.php — Order & payment checkout page.
+ * Author: Sachin Shrestha
+ * Date: 27/09/2026
+ * Purpose: Validates delivery details, then either creates a cash/PayPal
+ * order directly or redirects to Stripe Checkout for card payment.
+ */
+
 require_once file_exists(__DIR__ . '/../includes/session.php') ? __DIR__ . '/../includes/session.php' : __DIR__ . '/includes/session.php';
 $cart = cart_contents();
 $errors = [];

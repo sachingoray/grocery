@@ -1,4 +1,9 @@
 <?php
+/**
+ * dashboard.php — Admin/staff dashboard landing page.
+ * Date: 27/09/2026
+ * Purpose: Summary view for admin, logistics, inventory, and support roles.
+ */
 require_once file_exists(__DIR__ . '/../../includes/session.php') ? __DIR__ . '/../../includes/session.php' : __DIR__ . '/../includes/session.php';
 mff_require_role(['admin', 'logistics_manager', 'inventory_manager', 'support_staff']);
 $userRole = mff_role();
