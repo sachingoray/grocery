@@ -659,6 +659,32 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         UNIQUE (guest_token, product_id)
     )");
 
+    /*
+     * Per-product nutrition, ingredients, allergens, storage and origin.
+     * A separate 1:1 table rather than more columns on products, so the
+     * product catalogue (and every query, form and admin screen that reads
+     * it) is untouched. Seeded once from includes/nutrition_data.php, which
+     * is the single source of truth for the values.
+     */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS product_nutrition (
+        product_id INTEGER PRIMARY KEY,
+        serving VARCHAR(60) NULL,
+        energy_kcal DECIMAL(8,2) NULL,
+        energy_kj DECIMAL(8,2) NULL,
+        protein_g DECIMAL(8,2) NULL,
+        fat_g DECIMAL(8,2) NULL,
+        saturated_fat_g DECIMAL(8,2) NULL,
+        carbohydrates_g DECIMAL(8,2) NULL,
+        sugars_g DECIMAL(8,2) NULL,
+        fibre_g DECIMAL(8,2) NULL,
+        sodium_mg DECIMAL(8,2) NULL,
+        ingredients TEXT NULL,
+        allergens VARCHAR(200) NULL,
+        storage VARCHAR(255) NULL,
+        origin VARCHAR(120) NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )");
+
     // Seed products if empty
     $prodCount = (int) $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
     if ($prodCount === 0) {
@@ -676,6 +702,41 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
                 'image_url' => $p['image_url'], 'description' => $p['description'],
             ]);
         }
+    }
+
+    // Seed the nutrition panel once, only for products that exist in THIS
+    // catalogue. Energy in kJ is derived from kcal (1 kcal = 4.184 kJ) so the
+    // two figures can never disagree.
+    $nutritionCount = (int) $pdo->query('SELECT COUNT(*) FROM product_nutrition')->fetchColumn();
+    if ($nutritionCount === 0) {
+        $nutritionRows = require __DIR__ . '/nutrition_data.php';
+        $liveIds = array_map('intval', $pdo->query('SELECT id FROM products')->fetchAll(PDO::FETCH_COLUMN));
+        $insertNutrition = $pdo->prepare(
+            'INSERT INTO product_nutrition (product_id, serving, energy_kcal, energy_kj, protein_g, fat_g,
+                                             saturated_fat_g, carbohydrates_g, sugars_g, fibre_g, sodium_mg,
+                                             ingredients, allergens, storage, origin)
+             VALUES (:product_id, :serving, :kcal, :kj, :protein, :fat, :sat, :carbs, :sugars, :fibre, :sodium,
+                     :ingredients, :allergens, :storage, :origin)'
+        );
+        $seeded = 0;
+        foreach ($nutritionRows as $pid => $n) {
+            if ($liveIds !== [] && !in_array((int) $pid, $liveIds, true)) {
+                continue; // product is not in this catalogue
+            }
+            $kcal = (float) $n[1];
+            $insertNutrition->execute([
+                'product_id' => (int) $pid,
+                'serving' => $n[0],
+                'kcal' => $kcal,
+                'kj' => round($kcal * 4.184, 1),
+                'protein' => $n[2], 'fat' => $n[3], 'sat' => $n[4],
+                'carbs' => $n[5], 'sugars' => $n[6], 'fibre' => $n[7], 'sodium' => $n[8],
+                'ingredients' => $n[9], 'allergens' => $n[10],
+                'storage' => $n[11], 'origin' => $n[12],
+            ]);
+            $seeded++;
+        }
+        error_log('[mff] seeded product_nutrition rows: ' . $seeded);
     }
 
     // Seed or sync default staff & demo accounts
@@ -755,5 +816,40 @@ function mff_get_product(int $id): ?array
     $stmt->execute(['id' => $id]);
     $row = $stmt->fetch();
     return $row ?: null;
+}
+
+/**
+ * Fetch one product's nutrition panel (energy, macronutrients, ingredients,
+ * allergens, storage, origin), or null when that product has none.
+ *
+ * Returns null rather than throwing if the product_nutrition table is not
+ * there yet (an old database that predates this feature), so the product
+ * page simply omits the panel instead of erroring.
+ */
+function mff_get_nutrition(int $productId): ?array
+{
+    static $cache = [];
+    if ($productId <= 0) {
+        return null;
+    }
+    if (array_key_exists($productId, $cache)) {
+        return $cache[$productId];
+    }
+
+    $pdo = mff_db();
+    if ($pdo === null) {
+        return null;
+    }
+    try {
+        $stmt = $pdo->prepare('SELECT * FROM product_nutrition WHERE product_id = :id');
+        $stmt->execute(['id' => $productId]);
+        $row = $stmt->fetch();
+    } catch (PDOException $e) {
+        $cache[$productId] = null;
+        return null;
+    }
+
+    $cache[$productId] = ($row === false) ? null : $row;
+    return $cache[$productId];
 }
 

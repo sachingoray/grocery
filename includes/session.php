@@ -36,7 +36,7 @@ if (!defined('BASE_URL')) {
  * code, whatever the local files look like.
  */
 if (!defined('MFF_BUILD')) {
-    define('MFF_BUILD', '2026-09-29-session-isolation');
+    define('MFF_BUILD', '2026-09-29-product-nutrition');
 }
 /**
  * Session isolation — one session per browser, never shared.

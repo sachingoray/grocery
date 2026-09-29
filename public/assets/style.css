@@ -203,6 +203,37 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .btn-ink:hover { background: var(--oat); }
 .btn-ink:active { transform: scale(0.97); }
 
+/* ------------------------------------------- nutrition panel (product page) */
+.nutrition {
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.75rem;
+}
+.nutrition__heading { font-size: 1.35rem; margin-bottom: .35rem; }
+.nutrition__serving { color: #56715f; font-size: .9rem; margin-bottom: 1.25rem; }
+.nutrition__grid {
+  display: grid; gap: 1.75rem;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 767px) {
+  .nutrition__grid { grid-template-columns: minmax(0, 1fr); }
+}
+.nutrition__table-wrap { overflow-x: auto; }
+.nutrition__table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.nutrition__table th,
+.nutrition__table td { padding: .5rem .35rem; text-align: left; border-bottom: 1px solid var(--line); }
+.nutrition__table thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: #56715f; }
+.nutrition__table td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nutrition__table tbody th { font-weight: 600; }
+.nutrition__table tr.nutrition__sub th { padding-left: 1.1rem; font-weight: 400; color: #56715f; }
+.nutrition__facts { display: grid; gap: 1rem; margin: 0; }
+.nutrition__fact dt {
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .12em;
+  color: #56715f; font-weight: 700; margin-bottom: .2rem;
+}
+.nutrition__fact dd { margin: 0; font-size: .92rem; line-height: 1.55; }
+
 /* -------------------------------------------------------------- filters */
 .catalogue-toolbar {
   display: flex; flex-direction: column; gap: 1.25rem; justify-content: space-between;

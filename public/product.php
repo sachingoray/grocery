@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
 $pageTitle = $product['name'];
 $activeNav = 'shop';
 $isLowStock = $product['stock'] <= ($product['low_stock_threshold'] ?? 10);
+$nutrition = mff_get_nutrition((int) $product['id']);
 require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 <nav aria-label="Breadcrumb" class="u-115">
@@ -75,5 +76,74 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     </form>
   </div>
 </div>
+<?php if ($nutrition !== null): ?>
+  <section class="nutrition" aria-labelledby="nutrition-heading">
+    <h2 class="section-title nutrition__heading" id="nutrition-heading">Nutrition &amp; product details</h2>
+    <p class="nutrition__serving">Average values <strong><?= htmlspecialchars((string) $nutrition['serving']) ?></strong></p>
+    <div class="nutrition__grid">
+      <div class="nutrition__table-wrap">
+        <table class="nutrition__table">
+          <caption class="sr-only">Nutrition information</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nutrient</th>
+              <th scope="col">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            // Grocery-style numbers: no trailing ".00" on whole values.
+            $fmt = static function ($v): string {
+                return rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.');
+            };
+            $nutritionRows = [
+                ['Energy', $fmt($nutrition['energy_kj']) . ' kJ', false],
+                ['Energy', $fmt($nutrition['energy_kcal']) . ' kcal', true],
+                ['Protein', $fmt($nutrition['protein_g']) . ' g', false],
+                ['Fat, total', $fmt($nutrition['fat_g']) . ' g', false],
+                ['in saturates', $fmt($nutrition['saturated_fat_g']) . ' g', true],
+                ['Carbohydrate', $fmt($nutrition['carbohydrates_g']) . ' g', false],
+                ['in sugars', $fmt($nutrition['sugars_g']) . ' g', true],
+                ['Dietary fibre', $fmt($nutrition['fibre_g']) . ' g', false],
+                ['Sodium', $fmt($nutrition['sodium_mg']) . ' mg', false],
+            ];
+            foreach ($nutritionRows as [$label, $value, $isSub]): ?>
+              <tr<?= $isSub ? ' class="nutrition__sub"' : '' ?>>
+                <th scope="row"><?= htmlspecialchars($label) ?></th>
+                <td><?= htmlspecialchars($value) ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+      <dl class="nutrition__facts">
+        <?php if (!empty($nutrition['ingredients'])): ?>
+          <div class="nutrition__fact">
+            <dt>Ingredients</dt>
+            <dd><?= htmlspecialchars((string) $nutrition['ingredients']) ?></dd>
+          </div>
+        <?php endif; ?>
+        <?php if (!empty($nutrition['allergens'])): ?>
+          <div class="nutrition__fact">
+            <dt>Allergens</dt>
+            <dd><?= htmlspecialchars((string) $nutrition['allergens']) ?></dd>
+          </div>
+        <?php endif; ?>
+        <?php if (!empty($nutrition['storage'])): ?>
+          <div class="nutrition__fact">
+            <dt>Storage</dt>
+            <dd><?= htmlspecialchars((string) $nutrition['storage']) ?></dd>
+          </div>
+        <?php endif; ?>
+        <?php if (!empty($nutrition['origin'])): ?>
+          <div class="nutrition__fact">
+            <dt>Origin</dt>
+            <dd><?= htmlspecialchars((string) $nutrition['origin']) ?></dd>
+          </div>
+        <?php endif; ?>
+      </dl>
+    </div>
+  </section>
+<?php endif; ?>
 <script src="<?= BASE_URL ?>/assets/product.js?v=<?= time() ?>" defer></script>
 <?php require file_exists(__DIR__ . '/../includes/footer.php') ? __DIR__ . '/../includes/footer.php' : __DIR__ . '/includes/footer.php'; ?>
