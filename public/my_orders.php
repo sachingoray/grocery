@@ -21,7 +21,19 @@ if ($pdo !== null) {
     if (mff_role() === 'admin') {
         $stmt = $pdo->query('SELECT * FROM orders ORDER BY created_at DESC');
     } else {
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE user_id = :uid OR customer_name = :cname ORDER BY created_at DESC');
+        // Ownership, not name matching. `user_id` is the only thing that binds
+        // an order to an account, and matching on customer_name let two
+        // different accounts that happen to share a name see each other's
+        // orders. The name fallback is kept for GUEST orders (user_id IS
+        // NULL) — a customer who ordered without an account still sees those
+        // orders after signing in — but it can never surface an order that
+        // belongs to somebody else's account.
+        $stmt = $pdo->prepare(
+            'SELECT * FROM orders
+             WHERE user_id = :uid
+                OR (user_id IS NULL AND customer_name = :cname)
+             ORDER BY created_at DESC'
+        );
         $stmt->execute(['uid' => $userId, 'cname' => $userName]);
     }
     $orders = $stmt->fetchAll();

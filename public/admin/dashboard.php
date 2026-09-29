@@ -33,7 +33,7 @@ if ($pdo !== null) {
     $totalUsers = (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
     $recentUsers = $pdo->query('
         SELECT u.id, u.name, u.email, u.role, u.contact_number, u.created_at,
-               (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id OR o.customer_name = u.name) AS order_count
+               (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id) AS order_count
         FROM users u
         ORDER BY u.created_at DESC
         LIMIT 6

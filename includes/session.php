@@ -36,10 +36,64 @@ if (!defined('BASE_URL')) {
  * code, whatever the local files look like.
  */
 if (!defined('MFF_BUILD')) {
-    define('MFF_BUILD', '2026-09-29-receipt-download');
+    define('MFF_BUILD', '2026-09-29-session-isolation');
 }
-if (session_status() === PHP_SESSION_NONE) {
+/**
+ * Session isolation — one session per browser, never shared.
+ *
+ * PHP's default is a generic `PHPSESSID` cookie scoped to path=/ across the
+ * WHOLE host. On shared hosting, where several apps live on one domain, every
+ * app writes the same cookie name over the same path: a visit to one site
+ * overwrites the session id another site just issued, and the browser then
+ * sends one id to all of them. That is exactly how unrelated users end up
+ * sharing a single session.
+ *
+ * This app therefore:
+ *   - issues its OWN cookie name, so no other app can clobber it,
+ *   - scopes that cookie to this app's own path,
+ *   - marks it HttpOnly (unreadable from JavaScript) and SameSite=Lax, and
+ *     Secure whenever the request arrived over HTTPS,
+ *   - enables session.use_strict_mode, so a session id the server has never
+ *     issued is rejected rather than adopted (session fixation),
+ *   - accepts the id only from the cookie, never from a URL.
+ */
+function mff_request_is_https(): bool
+{
+    return (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+        || (!empty($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443)
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+}
+
+function mff_start_session(): void
+{
+    if (session_status() !== PHP_SESSION_NONE) {
+        return;
+    }
+    session_name('MFFSESSID');
+    session_set_cookie_params([
+        'lifetime' => 0, // browser session: closing the browser ends it
+        'path' => BASE_URL !== '' ? BASE_URL : '/',
+        'domain' => '',
+        'secure' => mff_request_is_https(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
+    ini_set('session.sid_length', '48');
+    ini_set('session.sid_bits_per_character', '5');
     session_start();
+}
+mff_start_session();
+
+// Never let an intermediary (proxy/CDN) store a page that carries a
+// Set-Cookie, and never let it serve one visitor's cached HTML — with its
+// Set-Cookie — to another visitor. That is the other way sessions get shared.
+if (!headers_sent()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, private');
+    header('Pragma: no-cache');
+    header('Vary: Cookie');
 }
 // Serve everything explicitly as UTF-8 so emoji render correctly instead of
 // showing as mojibake. The <meta charset="utf-8"> in header.php is only a
@@ -162,9 +216,17 @@ function mff_role(): string
 }
 function mff_set_role(string $role): void
 {
-    if (in_array($role, MFF_ROLES, true)) {
-        $_SESSION['role'] = $role;
+    if (!in_array($role, MFF_ROLES, true)) {
+        return;
     }
+    // Any actual change of privilege (guest -> customer, customer -> staff)
+    // rotates the session id. A cookie captured before sign-in, or one that
+    // was shared between browsers by mistake, can never ride along on the new
+    // role: it is bound to a session id that no longer exists.
+    if (($_SESSION['role'] ?? 'guest') !== $role && session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
+    $_SESSION['role'] = $role;
 }
 /**
  * Guards a page behind a set of permitted roles, bouncing anyone else to the
