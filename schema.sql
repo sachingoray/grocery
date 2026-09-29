@@ -244,6 +244,7 @@ INSERT INTO product_nutrition (product_id, serving, energy_kcal, energy_kj, prot
 (1, 'per 100 g', 160.00, 669.4, 2.00, 14.70, 2.10, 8.50, 0.70, 6.70, 7.0, 'Hass avocados.', 'None', 'Refrigerate once ripe to slow browning.', 'Queensland, Australia'),
 (2, 'per 100 g', 32.00, 133.9, 0.70, 0.30, 0.00, 7.70, 6.00, 2.00, 1.0, 'Australian strawberries.', 'None', 'Refrigerate and use within 3 days.', 'Australia'),
 (3, 'per 100 g', 89.00, 372.4, 1.10, 0.30, 0.10, 22.80, 12.20, 2.60, 1.0, 'Cavendish bananas.', 'None', 'Store at room temperature away from sunlight.', 'Queensland, Australia'),
+(4, 'per 100 g', 52.00, 217.6, 0.30, 0.20, 0.00, 13.80, 10.40, 2.40, 1.0, 'Royal Gala apples.', 'None', 'Refrigerate for longer shelf life; eat at room temperature.', 'Australia'),
 (5, 'per 100 g', 14.00, 58.6, 1.20, 0.20, 0.00, 2.90, 1.40, 1.20, 10.0, 'Iceberg lettuce.', 'None', 'Refrigerate in the crisper drawer; wash before use.', 'Australia'),
 (6, 'per 100 g', 23.00, 96.2, 2.90, 0.40, 0.10, 3.60, 0.40, 2.20, 79.0, 'Organic baby spinach leaves.', 'None', 'Refrigerate and use within 3 days.', 'Australia'),
 (7, 'per 100 g', 18.00, 75.3, 0.90, 0.20, 0.00, 3.90, 2.60, 1.20, 5.0, 'Roma tomatoes.', 'None', 'Refrigerate for freshness; do not chill below 10C.', 'Australia'),

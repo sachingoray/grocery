@@ -704,39 +704,47 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         }
     }
 
-    // Seed the nutrition panel once, only for products that exist in THIS
-    // catalogue. Energy in kJ is derived from kcal (1 kcal = 4.184 kJ) so the
-    // two figures can never disagree.
-    $nutritionCount = (int) $pdo->query('SELECT COUNT(*) FROM product_nutrition')->fetchColumn();
-    if ($nutritionCount === 0) {
-        $nutritionRows = require __DIR__ . '/nutrition_data.php';
-        $liveIds = array_map('intval', $pdo->query('SELECT id FROM products')->fetchAll(PDO::FETCH_COLUMN));
-        $insertNutrition = $pdo->prepare(
-            'INSERT INTO product_nutrition (product_id, serving, energy_kcal, energy_kj, protein_g, fat_g,
-                                             saturated_fat_g, carbohydrates_g, sugars_g, fibre_g, sodium_mg,
-                                             ingredients, allergens, storage, origin)
-             VALUES (:product_id, :serving, :kcal, :kj, :protein, :fat, :sat, :carbs, :sugars, :fibre, :sodium,
-                     :ingredients, :allergens, :storage, :origin)'
-        );
-        $seeded = 0;
-        foreach ($nutritionRows as $pid => $n) {
-            if ($liveIds !== [] && !in_array((int) $pid, $liveIds, true)) {
-                continue; // product is not in this catalogue
-            }
-            $kcal = (float) $n[1];
-            $insertNutrition->execute([
-                'product_id' => (int) $pid,
-                'serving' => $n[0],
-                'kcal' => $kcal,
-                'kj' => round($kcal * 4.184, 1),
-                'protein' => $n[2], 'fat' => $n[3], 'sat' => $n[4],
-                'carbs' => $n[5], 'sugars' => $n[6], 'fibre' => $n[7], 'sodium' => $n[8],
-                'ingredients' => $n[9], 'allergens' => $n[10],
-                'storage' => $n[11], 'origin' => $n[12],
-            ]);
-            $seeded++;
+    // Fill in any MISSING nutrition rows (not just on an empty table), so a
+    // product added to a live catalogue later gets its panel on the next page
+    // load. Energy in kJ is derived from kcal (1 kcal = 4.184 kJ) so the two
+    // figures can never disagree.
+    $nutritionRows = require __DIR__ . '/nutrition_data.php';
+    $existingNutrition = array_map(
+        'intval',
+        $pdo->query('SELECT product_id FROM product_nutrition')->fetchAll(PDO::FETCH_COLUMN)
+    );
+    $liveIds = array_map('intval', $pdo->query('SELECT id FROM products')->fetchAll(PDO::FETCH_COLUMN));
+    $insertNutrition = $pdo->prepare(
+        'INSERT INTO product_nutrition (product_id, serving, energy_kcal, energy_kj, protein_g, fat_g,
+                                         saturated_fat_g, carbohydrates_g, sugars_g, fibre_g, sodium_mg,
+                                         ingredients, allergens, storage, origin)
+         VALUES (:product_id, :serving, :kcal, :kj, :protein, :fat, :sat, :carbs, :sugars, :fibre, :sodium,
+                 :ingredients, :allergens, :storage, :origin)'
+    );
+    $seeded = 0;
+    foreach ($nutritionRows as $pid => $n) {
+        $pid = (int) $pid;
+        if (in_array($pid, $existingNutrition, true)) {
+            continue; // already has a row
         }
-        error_log('[mff] seeded product_nutrition rows: ' . $seeded);
+        if ($liveIds !== [] && !in_array($pid, $liveIds, true)) {
+            continue; // product is not in this catalogue
+        }
+        $kcal = (float) $n[1];
+        $insertNutrition->execute([
+            'product_id' => $pid,
+            'serving' => $n[0],
+            'kcal' => $kcal,
+            'kj' => round($kcal * 4.184, 1),
+            'protein' => $n[2], 'fat' => $n[3], 'sat' => $n[4],
+            'carbs' => $n[5], 'sugars' => $n[6], 'fibre' => $n[7], 'sodium' => $n[8],
+            'ingredients' => $n[9], 'allergens' => $n[10],
+            'storage' => $n[11], 'origin' => $n[12],
+        ]);
+        $seeded++;
+    }
+    if ($seeded > 0) {
+        error_log('[mff] added missing product_nutrition rows: ' . $seeded);
     }
 
     // Seed or sync default staff & demo accounts

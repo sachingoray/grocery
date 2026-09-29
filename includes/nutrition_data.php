@@ -28,6 +28,8 @@ return [
         'Australian strawberries.', 'None', 'Refrigerate and use within 3 days.', 'Australia'],
     3 => ['per 100 g', 89, 1.1, 0.3, 0.1, 22.8, 12.2, 2.6, 1,
         'Cavendish bananas.', 'None', 'Store at room temperature away from sunlight.', 'Queensland, Australia'],
+    4 => ['per 100 g', 52, 0.3, 0.2, 0.0, 13.8, 10.4, 2.4, 1,
+        'Royal Gala apples.', 'None', 'Refrigerate for longer shelf life; eat at room temperature.', 'Australia'],
     5 => ['per 100 g', 14, 1.2, 0.2, 0.0, 2.9, 1.4, 1.2, 10,
         'Iceberg lettuce.', 'None', 'Refrigerate in the crisper drawer; wash before use.', 'Australia'],
     6 => ['per 100 g', 23, 2.9, 0.4, 0.1, 3.6, 0.4, 2.2, 79,
@@ -167,4 +169,6 @@ return [
     50 => ['per 100 ml', 260, 0.0, 0.1, 0.1, 67.0, 60.5, 0.0, 12,
         '100% pure Canadian maple syrup.', 'None',
         'Refrigerate after opening; no refrigeration needed before.', 'Canada'],
+    51 => ['per 100 g', 52, 0.3, 0.2, 0.0, 13.8, 10.4, 2.4, 1,
+        'Apples.', 'None', 'Store cool and dry; refrigerate once cut.', 'Australia'],
 ];
