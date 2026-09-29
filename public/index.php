@@ -14,6 +14,28 @@ $activeNav = 'shop';
 $showNavSearch = true;
 $products = mff_get_products();
 $categories = array_values(array_unique(array_column($products, 'category')));
+
+/*
+ * Department links (the footer's "Market Departments" column) arrive here as
+ * ?category=<name>. The catalogue filter is driven entirely by whichever
+ * .filter-button carries filter-button--active - main.js reads it on load - so
+ * marking the right button here is all that is needed. An unknown or absent
+ * value falls back to the existing default, "specials".
+ */
+$requestedCategory = trim((string) ($_GET['category'] ?? ''));
+$activeCategory = 'specials';
+if ($requestedCategory !== '') {
+    if (strcasecmp($requestedCategory, 'specials') === 0) {
+        $activeCategory = 'specials';
+    } else {
+        foreach ($categories as $category) {
+            if (strcasecmp($category, $requestedCategory) === 0) {
+                $activeCategory = $category;
+                break;
+            }
+        }
+    }
+}
 require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includes/header.php' : __DIR__ . '/includes/header.php';
 ?>
 <section class="hero-card" aria-labelledby="shop-title">
@@ -57,9 +79,9 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
     </div>
   </div>
   <div class="filter-row" role="group" aria-label="Product categories">
-    <button class="filter-button filter-button--active filter-button--specials" data-category="specials" type="button">🔥 Weekly Specials</button>
+    <button class="filter-button filter-button--specials<?= $activeCategory === 'specials' ? ' filter-button--active' : '' ?>" data-category="specials" type="button">🔥 Weekly Specials</button>
     <?php foreach ($categories as $category): ?>
-      <button class="filter-button" data-category="<?= htmlspecialchars($category) ?>" type="button"><?= htmlspecialchars($category) ?></button>
+      <button class="filter-button<?= $activeCategory === $category ? ' filter-button--active' : '' ?>" data-category="<?= htmlspecialchars($category) ?>" type="button"><?= htmlspecialchars($category) ?></button>
     <?php endforeach; ?>
   </div>
   <p id="no-products" class="hidden u-208">No products match your search.</p>
@@ -76,8 +98,14 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
         $isLowStock = $product['stock'] <= ($product['low_stock_threshold'] ?? 10);
         $isSpecial = !empty($product['is_special']) || (!empty($product['original_price']) && $product['original_price'] > $product['price']);
         $searchBlob = strtolower($product['name'] . ' ' . $product['category'] . ' ' . ($product['badge'] ?? '') . ($isSpecial ? ' special sale deal' : ''));
+        // Cards outside the requested department start hidden, so the page is
+        // already correct before main.js runs (and with JavaScript disabled).
+        $inActiveCategory = ($activeCategory === 'specials')
+            ? $isSpecial
+            : (strcasecmp($product['category'], $activeCategory) === 0);
+        $cardClasses = 'product-card' . ($isSpecial ? ' product-card--special' : '') . ($inActiveCategory ? '' : ' is-hidden');
       ?>
-      <article class="product-card <?= $isSpecial ? 'product-card--special' : 'is-hidden' ?>" data-category="<?= htmlspecialchars($product['category']) ?>" data-special="<?= $isSpecial ? '1' : '0' ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
+      <article class="<?= $cardClasses ?>" data-category="<?= htmlspecialchars($product['category']) ?>" data-special="<?= $isSpecial ? '1' : '0' ?>" data-search="<?= htmlspecialchars($searchBlob) ?>">
         <div class="product-card__media">
           <img src="<?= htmlspecialchars($product['image_url']) ?>" data-fallback="<?= BASE_URL ?>/assets/placeholder.svg" alt="<?= htmlspecialchars($product['name']) ?>" loading="lazy">
           <?php if (!empty($product['badge'])): ?>

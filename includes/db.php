@@ -827,6 +827,30 @@ function mff_get_product(int $id): ?array
 }
 
 /**
+ * Distinct product categories in the catalogue, for links that must point at a
+ * real department (the footer's department links) rather than a hard-coded name.
+ */
+function mff_product_categories(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $pdo = mff_db();
+    if ($pdo === null) {
+        $cache = [];
+        foreach (mff_products_fallback() as $p) {
+            $cache[$p['category']] = true;
+        }
+        $cache = array_keys($cache);
+        return $cache;
+    }
+    $stmt = $pdo->query('SELECT DISTINCT category FROM products ORDER BY category');
+    $cache = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    return $cache;
+}
+
+/**
  * Fetch one product's nutrition panel (energy, macronutrients, ingredients,
  * allergens, storage, origin), or null when that product has none.
  *

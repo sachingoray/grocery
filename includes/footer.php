@@ -88,15 +88,34 @@
         </div>
       </div>
       <!-- Col 2: Departments -->
+      <?php
+      // These used to all point at the bare homepage, so every department link
+      // just reloaded the front page. Each one now targets that department's
+      // catalogue view, and a department is only linked if it actually exists
+      // in the catalogue (so a renamed category can never leave a dead link).
+      $mffDepartmentCategories = mff_product_categories();
+      $mffDepartments = [
+          ['specials', "\u{1F525}", 'Weekly Specials'],
+          ['Produce', "\u{1F34E}", 'Fresh Produce'],
+          ['Bakery', "\u{1F956}", 'Artisan Bakery'],
+          ['Meat & Seafood', "\u{1F969}", 'Meat &amp; Seafood'],
+          ['Dairy', "\u{1F9C0}", 'Dairy &amp; Farm Eggs'],
+          ['Beverages', "\u{1F9C3}", 'Cold Drinks &amp; Pantry'],
+      ];
+      ?>
       <div class="footer-col">
         <h4 class="footer-heading">Market Departments</h4>
         <ul class="footer-links">
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🔥</span> Weekly Specials</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🍎</span> Fresh Produce</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🥖</span> Artisan Bakery</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🥩</span> Meat &amp; Seafood</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🧀</span> Dairy &amp; Farm Eggs</a></li>
-          <li><a href="<?= BASE_URL ?>/index.php"><span class="footer-link-dot">🧃</span> Cold Drinks &amp; Pantry</a></li>
+          <?php foreach ($mffDepartments as [$mffKey, $mffIcon, $mffLabel]): ?>
+            <?php if ($mffKey !== 'specials' && !in_array($mffKey, $mffDepartmentCategories, true)) {
+                continue; // no such department in this catalogue
+            } ?>
+            <li>
+              <a href="<?= BASE_URL ?>/index.php?category=<?= urlencode($mffKey) ?>#catalogue">
+                <span class="footer-link-dot"><?= $mffIcon ?></span><?= $mffLabel ?>
+              </a>
+            </li>
+          <?php endforeach; ?>
         </ul>
       </div>
       <!-- Col 3: Customer Care -->
