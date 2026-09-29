@@ -582,6 +582,7 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         total DECIMAL(10,2) NOT NULL,
         status VARCHAR(40) NOT NULL DEFAULT 'pending',
         driver VARCHAR(120) NULL,
+        stripe_session_id VARCHAR(100) NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -593,6 +594,41 @@ function mff_init_db_schema(PDO $pdo, string $driver = 'sqlite'): void
         price DECIMAL(10,2) NOT NULL,
         quantity INTEGER NOT NULL
     )");
+
+    /*
+     * Additive migration (2026-09-29, digital receipt feature):
+     * orders gains a NULLABLE stripe_session_id column plus a unique index.
+     * Why it is needed:
+     *   1. Idempotency — Stripe/browser may deliver the same success URL more
+     *      than once for one payment. The unique index is the reference check
+     *      that makes a replay reuse the existing order instead of inserting
+     *      a duplicate (see public/stripe_success.php).
+     *   2. It links an order to the Stripe Checkout Session that paid for it,
+     *      so download_receipt.php can re-ask Stripe whether the payment is
+     *      still 'paid' before issuing a PDF.
+     * Nothing is dropped or renamed; existing rows simply keep NULL.
+     */
+    try {
+        if ($driver === 'sqlite') {
+            $hasCol = (bool) $pdo->query("SELECT 1 FROM pragma_table_info('orders') WHERE name = 'stripe_session_id'")->fetch();
+        } else {
+            $hasCol = (bool) $pdo->query("SHOW COLUMNS FROM orders LIKE 'stripe_session_id'")->fetch();
+        }
+        if (!$hasCol) {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN stripe_session_id VARCHAR(100) NULL");
+        }
+        if ($driver === 'sqlite') {
+            $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_stripe_session ON orders (stripe_session_id)");
+        } else {
+            try {
+                $pdo->exec("CREATE UNIQUE INDEX uniq_orders_stripe_session ON orders (stripe_session_id)");
+            } catch (Exception $e) {
+                // Index already exists — nothing to do.
+            }
+        }
+    } catch (Exception $e) {
+        error_log('[mff] orders.stripe_session_id migration failed: ' . $e->getMessage());
+    }
 
     /*
      * Persistent, per-user shopping cart.

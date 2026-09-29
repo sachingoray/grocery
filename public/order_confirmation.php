@@ -47,6 +47,9 @@ require file_exists(__DIR__ . '/../includes/header.php') ? __DIR__ . '/../includ
   </aside>
 </div>
 <div class="u-190">
+  <?php if (($order['payment_method'] ?? '') === 'credit_card' && !empty($order['stripe_session_id'])): ?>
+    <a href="<?= BASE_URL ?>/download_receipt.php?id=<?= (int) $order['id'] ?>" class="btn-outline">Download receipt</a>
+  <?php endif; ?>
   <a href="<?= BASE_URL ?>/my_orders.php" class="btn-tomato">Track this order</a>
   <a href="<?= BASE_URL ?>/index.php" class="btn-ink">Continue shopping</a>
 </div>

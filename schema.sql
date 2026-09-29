@@ -64,6 +64,8 @@ CREATE TABLE orders (
     status ENUM('pending', 'processing', 'out_for_delivery', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending',
     driver VARCHAR(120) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    stripe_session_id VARCHAR(100) NULL,
+    UNIQUE KEY uniq_orders_stripe_session (stripe_session_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 

@@ -36,7 +36,7 @@ if (!defined('BASE_URL')) {
  * code, whatever the local files look like.
  */
 if (!defined('MFF_BUILD')) {
-    define('MFF_BUILD', '2026-09-28-product-image-fix');
+    define('MFF_BUILD', '2026-09-29-receipt-download');
 }
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

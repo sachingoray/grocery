@@ -66,6 +66,7 @@ VERIFY_PATHS = [
     '/delivery/my_deliveries.php',
     '/api/chat.php',
     '/stripe_success.php',
+    '/download_receipt.php?id=1',
     '/stripe_cancel.php',
     '/terms.php',
 ]
